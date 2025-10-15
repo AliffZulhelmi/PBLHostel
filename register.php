@@ -30,49 +30,101 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Register</title>
+    <title>Student Registration</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+    </style>
 </head>
-<body>
-    <h2>Register</h2>
-    <?php if ($message): ?>
-        <p><?php echo $message; ?></p>
-    <?php endif; ?>
-    <form method="post" action="">
-        <!-- Collect full name -->
-        <label>Full Name:</label><br>
-        <input type="text" name="full_name" required><br>
-        
-        <!-- Collect gender -->
-        <label>Gender:</label><br>
-        <select name="gender" required>
-            <!-- <option value=""></option> -->
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-        </select><br>
+<body class="bg-gradient-to-r from-indigo-200 via-white to-cyan-100 min-h-screen flex items-center justify-center">
 
-        <!-- Collect student id -->
-        <label>Student ID:</label><br>
-        <input type="text" name="student_id" required><br>
-        
-        <!-- Collect email -->
-        <label>Email:</label><br>
-        <input type="email" name="email" required><br>
-        
-        <!-- Collect phone number -->
-        <label>Phone Number:</label><br>
-        <input type="text" name="phone" required><br>
+    <div class="w-full max-w-md shadow-2xl rounded-2xl px-8 py-10 bg-white border border-gray-200">
+        <div class="mb-7 text-center">
+            <img src="https://placehold.co/60x60/374151/FFFFFF?text=GMI" alt="GMI Logo" class="mx-auto mb-2 h-[60px] rounded-lg shadow">
+            <h2 class="text-3xl font-extrabold text-indigo-900 mb-1">Student Registration</h2>
+            <p class="text-sm text-gray-500">Fill in the form to create your hostel account</p>
+        </div>
+        <?php if ($message): ?>
+            <div class="mb-4 <?php echo strpos($message, 'successful') !== false ? 'bg-green-100 border-green-300 text-green-700' : 'bg-red-100 border-red-300 text-red-700'; ?> border px-4 py-3 rounded text-center">
+                <?php echo $message; ?>
+            </div>
+        <?php endif; ?>
+        <form method="post" action="" class="space-y-5">
 
-        <!-- Collect password -->
-        <label>Password:</label><br>
-        <input type="password" name="password" required><br>
-        <label>Confirm Password:</label><br>
-        <input type="password" name="confirm_password" required><br><br>
+            <div>
+                <label for="full_name" class="block mb-1 text-gray-700 font-medium">Full Name</label>
+                <input type="text" name="full_name" id="full_name"
+                       required
+                       class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition"
+                       placeholder="Your Name">
+            </div>
 
-        <!-- Submit button -->
-        <button type="submit">Register</button>
-    </form>
-    <p>Already have an account? <a href="login.php">Login here</a>.</p>
+            <div>
+                <label for="gender" class="block mb-1 text-gray-700 font-medium">Gender</label>
+                <select name="gender" id="gender" required
+                        class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition">
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="student_id" class="block mb-1 text-gray-700 font-medium">Student ID</label>
+                <input type="text" name="student_id" id="student_id"
+                       required
+                       class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition"
+                       placeholder="123456">
+            </div>
+
+            <div>
+                <label for="email" class="block mb-1 text-gray-700 font-medium">Email</label>
+                <input type="email" name="email" id="email"
+                       required
+                       class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition"
+                       placeholder="student@student.gmi.edu.my">
+            </div>
+
+            <div>
+                <label for="phone" class="block mb-1 text-gray-700 font-medium">Phone Number</label>
+                <input type="text" name="phone" id="phone"
+                       required
+                       class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition"
+                       placeholder="0123456789">
+            </div>
+
+            <div>
+                <label for="password" class="block mb-1 text-gray-700 font-medium">Password</label>
+                <input type="password" name="password" id="password"
+                       required
+                       class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition"
+                       placeholder="Password">
+            </div>
+
+            <div>
+                <label for="confirm_password" class="block mb-1 text-gray-700 font-medium">Confirm Password</label>
+                <input type="password" name="confirm_password" id="confirm_password"
+                       required
+                       class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition"
+                       placeholder="Re-enter Password">
+            </div>
+
+            <div>
+                <button type="submit"
+                        class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition focus:ring-4 focus:ring-indigo-300">
+                    Register
+                </button>
+            </div>
+        </form>
+        <p class="mt-4 text-center text-gray-500">
+            Already have an account?
+            <a href="login.php" class="text-indigo-600 hover:text-indigo-800 font-medium">Login here</a>.
+        </p>
+    </div>
 </body>
 </html>

@@ -15,6 +15,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Include helpers for room selection
+require_once __DIR__ . '/room_helper.php';
+
 function register($full_name, $student_id, $email, $phone, $password, $role, $gender) {
     global $conn;
     $sql = "INSERT INTO users (full_name, student_id, email, phone, password, role, gender)
@@ -42,5 +45,37 @@ function selectAllUser() {
         }
     }
     return $users;
+}
+
+// Auto register room for a student
+// Params: $userId (users.id), $gender (users.gender), $semester (string)
+function autoRegisterRoom($userId, $gender, $semester) {
+    global $conn;
+
+    $userId = (int)$userId;
+    $semester = $conn->real_escape_string($semester);
+
+    // If already has an active room, do nothing
+    $existing = $conn->query("SELECT sr_id FROM student_rooms WHERE student_id = $userId AND status = 'Active' LIMIT 1");
+    if ($existing && $existing->num_rows > 0) {
+        return ['success' => true, 'message' => 'Already assigned'];
+    }
+
+    // Find a room id using helper (handles gender and capacity)
+    $roomId = findAvailableRoomId($gender);
+    if ($roomId === null) {
+        return ['success' => false, 'message' => 'No available room found'];
+    }
+
+    // Assign
+    $insert = $conn->query("INSERT INTO student_rooms (student_id, room_id, semester, status) VALUES ($userId, $roomId, '$semester', 'Active')");
+    if (!$insert) {
+        return ['success' => false, 'message' => 'Failed to assign room'];
+    }
+
+    // Update room status based on occupancy
+    updateRoomStatusByOccupancy($roomId);
+
+    return ['success' => true, 'message' => 'Room assigned', 'room_id' => $roomId];
 }
 ?>
