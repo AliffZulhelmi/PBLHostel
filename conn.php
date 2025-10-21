@@ -86,8 +86,6 @@ function updateRoomCapacityAfterAssignment($room_identifier) {
     return true;
 }
 
-// REMOVED: getroomcurrentoccupancy and updateroomstatustooccupied are redundant now
-
 function selectAllUser() {
     global $conn;
     $result = $conn->query("SELECT full_name, student_id, email, phone, role, gender, created_at FROM users");
