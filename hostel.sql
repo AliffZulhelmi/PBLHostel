@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 21, 2025 at 07:31 AM
+-- Generation Time: Oct 21, 2025 at 09:00 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -165,7 +165,9 @@ CREATE TABLE `student_rooms` (
 --
 
 INSERT INTO `student_rooms` (`sr_id`, `student_id`, `room_identifier`, `semester`, `status`, `assigned_at`, `released_at`) VALUES
-(1, 'CBS24001002', 'A4-01-001', '2025/1', 'Active', '2025-10-21 05:29:49', NULL);
+(1, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-21 05:29:49', '2025-10-21 00:42:09'),
+(2, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-21 06:42:12', '2025-10-21 00:42:19'),
+(3, 'CBS24001002', 'A4-01-001', '2025/1', 'Active', '2025-10-21 06:42:20', NULL);
 
 -- --------------------------------------------------------
 
@@ -182,6 +184,13 @@ CREATE TABLE `tickets` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tickets`
+--
+
+INSERT INTO `tickets` (`ticket_id`, `student_id`, `category`, `description`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-05-005.', 'Pending', '2025-10-21 06:54:40', '2025-10-21 06:54:40');
 
 -- --------------------------------------------------------
 
@@ -257,13 +266,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `student_rooms`
 --
 ALTER TABLE `student_rooms`
-  MODIFY `sr_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `sr_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tickets`
 --
 ALTER TABLE `tickets`
-  MODIFY `ticket_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ticket_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
