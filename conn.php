@@ -31,7 +31,8 @@ function login($email, $password) {
     $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
     $result = $conn->query($sql);
     $user = $result ? $result->fetch_assoc() : false;
-    return $user ? $user : false;
+    // Optimization: returning $user directly as it is an array or false/null
+    return $user;
 }
 
 function selectAllUser() {
@@ -46,36 +47,38 @@ function selectAllUser() {
     return $users;
 }
 
-function getUserGender($student_id) {
+// FIXED: Function now accepts and queries by the numeric users.id ($user_id)
+function getUserGender($user_id) {
     global $conn;
-    $genderQuery = $conn->query("SELECT gender FROM users WHERE id = $student_id");
-    return $genderQuery->fetch_assoc()['gender'];
+    $genderQuery = $conn->query("SELECT gender FROM users WHERE id = $user_id");
+    return $genderQuery ? $genderQuery->fetch_assoc()['gender'] : null;
 }
 
 // ------------------------------------
 // Room Management Functions
 // ------------------------------------
 
+// FIXED: Removed the overly strict status check 'Unoccupied'. Now only checks for available space.
 function findavailableroom($blocks) {
     global $conn;
     $roomQuery = $conn->query("
         SELECT r.room_id, r.partition_capacity
         FROM rooms r
         WHERE r.block_id IN ($blocks)
-        AND r.status = 'Unoccupied'
         AND (
             SELECT COUNT(*) FROM student_rooms sr
             WHERE sr.room_id = r.room_id AND sr.status = 'Active'
-        ) < r.partition_capacity
+        ) < CAST(r.partition_capacity AS UNSIGNED)
         ORDER BY r.room_id LIMIT 1
     ");
-    return $roomQuery->num_rows > 0 ? $roomQuery->fetch_assoc() : null;
+    return $roomQuery && $roomQuery->num_rows > 0 ? $roomQuery->fetch_assoc() : null;
 }
 
-function assignstudenttoroom($student_id, $room_id) {
+// Note: parameter $student_id is interpreted as the numeric user ID from the users table.
+function assignstudenttoroom($user_id, $room_id) {
     global $conn;
     return $conn->query("INSERT INTO student_rooms (student_id, room_id, semester, status)
-                         VALUES ($student_id, $room_id, '2025/1', 'Active')");
+                         VALUES ($user_id, $room_id, '2025/1', 'Active')");
 }
 
 function getroomcurrentoccupancy($room_id) {

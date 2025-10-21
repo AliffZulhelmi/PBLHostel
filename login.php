@@ -12,7 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = login($email, $password); 
         
         if ($user) {
-            $_SESSION['full _name'] = $user['full_name'];
+            $_SESSION['user_id'] = $user['id']; // <-- ADDED: Numeric PK
+            $_SESSION['full_name'] = $user['full_name']; // <-- FIXED: Removed space
             $_SESSION['student_id'] = $user['student_id'];
             $_SESSION['role'] = $user['role'];
             header('Location: index.php');
@@ -32,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Login</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
