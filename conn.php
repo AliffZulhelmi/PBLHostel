@@ -60,6 +60,37 @@ function findavailableroom($blocks) {
     return $roomQuery && $roomQuery->num_rows > 0 ? $roomQuery->fetch_assoc() : null;
 }
 
+// NEW: Fetches available room details based on gender
+function getAvailableRoomsByGender($gender) {
+    global $conn;
+    // Allowed blocks based on student_dashboard logic
+    $blocks = ($gender == 'male') ? "'A4','A5'" : "'A1'";
+
+    $query = "
+        SELECT room_identifier, block_id, floor_no, room_no
+        FROM rooms
+        WHERE block_id IN ($blocks) AND available_capacity > 0
+        ORDER BY block_id, floor_no, room_no";
+    
+    $result = $conn->query($query);
+    $data = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    return $data;
+}
+
+// NEW: Submits a room change request to the tickets table for admin processing
+function submitRoomChangeRequest($student_id, $current_room_id, $new_room_id) {
+    global $conn;
+    $description = "REQUEST: Student $student_id requests room change from $current_room_id to $new_room_id.";
+    $sql = "INSERT INTO tickets (student_id, category, description, status)
+            VALUES ('$student_id', 'Room Change', '$description', 'Pending')";
+    return $conn->query($sql);
+}
+
 // FIXED: Uses string $student_id and new string $room_identifier
 function assignstudenttoroom($student_id, $room_identifier) {
     global $conn;
