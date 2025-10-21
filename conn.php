@@ -28,12 +28,65 @@ function register($full_name, $student_id, $email, $phone, $password, $role, $ge
 
 function login($email, $password) {
     global $conn;
+    // Note: Admin login is via email and a NULL student_id (changed in SQL to 'ADMIN001' now)
     $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
     $result = $conn->query($sql);
     $user = $result ? $result->fetch_assoc() : false;
-    // Optimization: returning $user directly as it is an array or false/null
     return $user;
 }
+
+// FIXED: Queries by the string student_id (new PK)
+function getUserGender($student_id) {
+    global $conn;
+    $genderQuery = $conn->query("SELECT gender FROM users WHERE student_id = '$student_id'");
+    return $genderQuery ? $genderQuery->fetch_assoc()['gender'] : null;
+}
+
+// ------------------------------------
+// Room Management Functions
+// ------------------------------------
+
+// FIXED: Searches for rooms where available_capacity is greater than 0
+// RETURNS: room_identifier and available_capacity
+function findavailableroom($blocks) {
+    global $conn;
+    $roomQuery = $conn->query("
+        SELECT room_identifier, available_capacity
+        FROM rooms
+        WHERE block_id IN ($blocks)
+        AND available_capacity > 0
+        ORDER BY room_identifier LIMIT 1
+    ");
+    return $roomQuery && $roomQuery->num_rows > 0 ? $roomQuery->fetch_assoc() : null;
+}
+
+// FIXED: Uses string $student_id and new string $room_identifier
+function assignstudenttoroom($student_id, $room_identifier) {
+    global $conn;
+    $sql = "INSERT INTO student_rooms (student_id, room_identifier, semester, status)
+            VALUES ('$student_id', '$room_identifier', '2025/1', 'Active')";
+    return $conn->query($sql);
+}
+
+// NEW: Updates room capacity and status after a student is assigned
+function updateRoomCapacityAfterAssignment($room_identifier) {
+    global $conn;
+    // Decrement available_capacity by 1
+    $conn->query("UPDATE rooms SET available_capacity = available_capacity - 1 WHERE room_identifier = '$room_identifier'");
+
+    // Check if room is now full
+    $checkSql = "SELECT available_capacity FROM rooms WHERE room_identifier = '$room_identifier'";
+    $result = $conn->query($checkSql);
+    $capacity = $result ? $result->fetch_assoc()['available_capacity'] : 0;
+
+    if ($capacity <= 0) {
+        // Change status to 'Occupied' (Full)
+        return $conn->query("UPDATE rooms SET status='Occupied' WHERE room_identifier='$room_identifier'");
+    }
+    return true;
+}
+
+// REMOVED: getroomcurrentoccupancy and updateroomstatustooccupied are redundant now
 
 function selectAllUser() {
     global $conn;
@@ -45,54 +98,6 @@ function selectAllUser() {
         }
     }
     return $users;
-}
-
-// FIXED: Function now accepts and queries by the numeric users.id ($user_id)
-function getUserGender($user_id) {
-    global $conn;
-    $genderQuery = $conn->query("SELECT gender FROM users WHERE id = $user_id");
-    return $genderQuery ? $genderQuery->fetch_assoc()['gender'] : null;
-}
-
-// ------------------------------------
-// Room Management Functions
-// ------------------------------------
-
-// FIXED: Removed the overly strict status check 'Unoccupied'. Now only checks for available space.
-function findavailableroom($blocks) {
-    global $conn;
-    $roomQuery = $conn->query("
-        SELECT r.room_id, r.partition_capacity
-        FROM rooms r
-        WHERE r.block_id IN ($blocks)
-        AND (
-            SELECT COUNT(*) FROM student_rooms sr
-            WHERE sr.room_id = r.room_id AND sr.status = 'Active'
-        ) < CAST(r.partition_capacity AS UNSIGNED)
-        ORDER BY r.room_id LIMIT 1
-    ");
-    return $roomQuery && $roomQuery->num_rows > 0 ? $roomQuery->fetch_assoc() : null;
-}
-
-// Note: parameter $student_id is interpreted as the numeric user ID from the users table.
-function assignstudenttoroom($user_id, $room_id) {
-    global $conn;
-    return $conn->query("INSERT INTO student_rooms (student_id, room_id, semester, status)
-                         VALUES ($user_id, $room_id, '2025/1', 'Active')");
-}
-
-function getroomcurrentoccupancy($room_id) {
-    global $conn;
-    $countQuery = $conn->query("
-        SELECT COUNT(*) AS count FROM student_rooms
-        WHERE room_id = $room_id AND status = 'Active'
-    ");
-    return $countQuery->fetch_assoc()['count'];
-}
-
-function updateroomstatustooccupied($room_id) {
-    global $conn;
-    return $conn->query("UPDATE rooms SET status='Occupied' WHERE room_id=$room_id");
 }
 
 ?>

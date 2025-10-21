@@ -4,29 +4,26 @@ session_start();
 require_once 'conn.php';
 
 // If user is not logged in or not a student, redirect to login page
-// FIXED: Added check for 'user_id' to ensure system stability
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student' || !isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student' || !isset($_SESSION['student_id'])) {
     header('Location: login.php');
     exit;
 }
 
 // Extract session information
-// FIXED: using the correct key 'full_name' and retrieving the numeric 'user_id'
 $full_name = isset($_SESSION['full_name']) ? $_SESSION['full_name'] : 'Name not found! DB issue';
-$student_id_str = isset($_SESSION['student_id']) ? $_SESSION['student_id'] : 'StudentID not found! DB issue';
-$user_id = $_SESSION['user_id']; // The numeric ID (PK) for all DB queries
+$student_id = $_SESSION['student_id']; // The string ID (PK) for all DB queries
 
 // Fetch accommodation info for this student
 $has_active_assignment = false;
 $room_details = null;
 
-if ($user_id) {
-    // FIXED: Corrected selected columns (r.floor/r.room_number -> r.floor_no/r.room_no) and aliased them.
-    // FIXED: Query now uses the numeric $user_id (which is student_rooms.student_id FK)
-    $sql = "SELECT sr.*, r.block_id, r.floor_no as floor, r.room_no as room_number, r.partition_capacity, r.status as room_status
+if ($student_id) {
+    // FIXED: Uses student_id FK and room_identifier FK
+    // FIXED: Queries new columns total_capacity and available_capacity
+    $sql = "SELECT sr.*, r.block_id, r.floor_no as floor, r.room_no as room_number, r.total_capacity, r.available_capacity, r.status as room_status
             FROM student_rooms sr
-            LEFT JOIN rooms r ON sr.room_id = r.room_id
-            WHERE sr.student_id = '$user_id' AND sr.status = 'Active'
+            LEFT JOIN rooms r ON sr.room_identifier = r.room_identifier
+            WHERE sr.student_id = '$student_id' AND sr.status = 'Active'
             LIMIT 1";
     $res = $conn->query($sql);
     if ($res && $res->num_rows > 0) {
@@ -74,29 +71,32 @@ if ($user_id) {
                 Hello, <strong><?php echo htmlspecialchars($full_name); ?></strong>
             </p>
             <p class="text-sm text-gray-300">
-                ID: <strong><?php echo htmlspecialchars($student_id_str); ?></strong>
+                ID: <strong><?php echo htmlspecialchars($student_id); ?></strong>
             </p>
         </div>
     </header>
 
-    <div class="max-w-[900px] mx-auto my-10 p-5 bg-white rounded-xl shadow-2xl">
+    <body class="bg-gray-100 text-gray-900 m-0 p-0">
 
-        <?php if (isset($_SESSION['room_message'])): ?>
-            <div class="mb-4 p-4 rounded-lg bg-green-100 text-green-700 border border-green-300">
-                <?php echo htmlspecialchars($_SESSION['room_message']); ?>
-            </div>
-            <?php unset($_SESSION['room_message']); // Clear the message after display ?>
-        <?php endif; ?>
+<div class="max-w-[900px] mx-auto my-10 p-5 bg-white rounded-xl shadow-2xl">
 
-        <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Current Room Assignment</h2>
+    <?php if (isset($_SESSION['room_message'])): ?>
+        <div class="mb-4 p-4 rounded-lg bg-green-100 text-green-700 border border-green-300">
+            <?php echo htmlspecialchars($_SESSION['room_message']); ?>
+        </div>
+        <?php unset($_SESSION['room_message']); ?>
+    <?php endif; ?>
+
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Current Room Assignment</h2>
             
             <div class="bg-indigo-50 p-4 rounded-lg space-y-2 border border-indigo-200">
                 <?php if ($has_active_assignment && $room_details) { ?>
                     <p><strong class="text-indigo-700">Block:</strong> <?php echo htmlspecialchars($room_details['block_id']); ?></p>
                     <p><strong class="text-indigo-700">Floor:</strong> <?php echo htmlspecialchars($room_details['floor']); ?></p>
                     <p><strong class="text-indigo-700">Room Number:</strong> <?php echo htmlspecialchars($room_details['room_number']); ?></p>
-                    <p><strong class="text-indigo-700">Partition Capacity:</strong> <?php echo htmlspecialchars($room_details['partition_capacity']); ?></p>
+                    <p><strong class="text-indigo-700">Total Capacity:</strong> <?php echo htmlspecialchars($room_details['total_capacity']); ?></p>
+                    <p><strong class="text-indigo-700">Available Space:</strong> <?php echo htmlspecialchars($room_details['available_capacity']); ?></p>
                     <p><strong class="text-indigo-700">Semester:</strong> <?php echo htmlspecialchars($room_details['semester']); ?></p>
                     <p><strong class="text-indigo-700">Assigned At:</strong> <?php echo htmlspecialchars($room_details['assigned_at']); ?></p>
                 <?php } else { ?>

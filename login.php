@@ -12,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = login($email, $password); 
         
         if ($user) {
-            $_SESSION['user_id'] = $user['id']; // <-- ADDED: Numeric PK
-            $_SESSION['full_name'] = $user['full_name']; // <-- FIXED: Removed space
+            // FIXED: Only stores the student_id string, as numeric 'id' is removed.
+            $_SESSION['full_name'] = $user['full_name'];
             $_SESSION['student_id'] = $user['student_id'];
             $_SESSION['role'] = $user['role'];
             header('Location: index.php');

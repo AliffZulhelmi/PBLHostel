@@ -2,17 +2,17 @@
 session_start();
 require 'conn.php';
 
-// Check for session, student role, and the crucial numeric user_id
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student' || !isset($_SESSION['user_id'])) {
+// Check for session and student role
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student' || !isset($_SESSION['student_id'])) {
     header('Location: login.php');
     exit;
 }
 
-// Use the numeric user_id from the session for all DB operations
-$user_id = $_SESSION['user_id'];
+// Use the string student_id from the session for all DB operations
+$student_id = $_SESSION['student_id'];
 
-// 1. Check if the student already has an active assignment (prevents duplicate assignment)
-$check_sql = "SELECT sr_id FROM student_rooms WHERE student_id = '$user_id' AND status = 'Active' LIMIT 1";
+// 1. Check if the student already has an active assignment (using new student_id FK)
+$check_sql = "SELECT sr_id FROM student_rooms WHERE student_id = '$student_id' AND status = 'Active' LIMIT 1";
 $check_res = $conn->query($check_sql);
 
 if ($check_res && $check_res->num_rows > 0) {
@@ -21,8 +21,8 @@ if ($check_res && $check_res->num_rows > 0) {
     exit;
 }
 
-// 2. Get student gender (uses fixed getUserGender in conn.php)
-$gender = getUserGender($user_id);
+// 2. Get student gender
+$gender = getUserGender($student_id);
 
 if (!$gender) {
     $_SESSION['room_message'] = "Error: Student gender could not be determined. Assignment failed.";
@@ -33,7 +33,7 @@ if (!$gender) {
 // 3. Allowed blocks based on gender
 $blocks = ($gender == 'male') ? "'A4','A5'" : "'A1'";
 
-// 4. Find an available room (uses fixed findAvailableRoom in conn.php)
+// 4. Find an available room (gets room_identifier and current capacity)
 $room = findAvailableRoom($blocks);
 
 if ($room === null) {
@@ -42,30 +42,29 @@ if ($room === null) {
     exit;
 }
 
-$room_id = $room['room_id'];
-$capacity = (int)$room['partition_capacity'];
+$room_identifier = $room['room_identifier'];
+$capacity_before_assignment = (int)$room['available_capacity'];
 
-// 5. Assign student to room (uses assignstudenttoroom in conn.php)
-if (assignstudenttoroom($user_id, $room_id)) {
+// 5. Assign student to room
+if (assignstudenttoroom($student_id, $room_identifier)) {
     
-    // 6. Check occupancy and update room status if full
-    $currentCount = getRoomCurrentOccupancy($room_id);
+    // 6. Update capacity and room status (New function)
+    updateRoomCapacityAfterAssignment($room_identifier);
 
-    if ($currentCount >= $capacity) {
-        // updates room status in rooms table
-        updateroomstatustooccupied($room_id);
+    // Determine success message based on old capacity count
+    if ($capacity_before_assignment <= 1) { // If capacity was 1 before assignment, it's now 0/full
         $status_msg = " and Room status updated to Occupied.";
     } else {
         $status_msg = ".";
     }
     
-    $_SESSION['room_message'] = "Room registration successful! Assigned to Room ID $room_id" . $status_msg;
+    $_SESSION['room_message'] = "Room registration successful! Assigned to Room ID $room_identifier" . $status_msg;
     
 } else {
     $_SESSION['room_message'] = "Room registration failed. Database operation failed during assignment.";
 }
 
-// Redirect to dashboard in all successful and error cases (if they reach this point)
+// Redirect to dashboard
 header('Location: student_dashboard.php');
 exit;
 ?>
