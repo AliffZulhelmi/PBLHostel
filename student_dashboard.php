@@ -76,8 +76,6 @@ if ($student_id) {
         </div>
     </header>
 
-    <body class="bg-gray-100 text-gray-900 m-0 p-0">
-
 <div class="max-w-[900px] mx-auto my-10 p-5 bg-white rounded-xl shadow-2xl">
 
     <?php if (isset($_SESSION['room_message'])): ?>
@@ -96,7 +94,6 @@ if ($student_id) {
                     <p><strong class="text-indigo-700">Floor:</strong> <?php echo htmlspecialchars($room_details['floor']); ?></p>
                     <p><strong class="text-indigo-700">Room Number:</strong> <?php echo htmlspecialchars($room_details['room_number']); ?></p>
                     <p><strong class="text-indigo-700">Total Capacity:</strong> <?php echo htmlspecialchars($room_details['total_capacity']); ?></p>
-                    <p><strong class="text-indigo-700">Available Space:</strong> <?php echo htmlspecialchars($room_details['available_capacity']); ?></p>
                     <p><strong class="text-indigo-700">Semester:</strong> <?php echo htmlspecialchars($room_details['semester']); ?></p>
                     <p><strong class="text-indigo-700">Assigned At:</strong> <?php echo htmlspecialchars($room_details['assigned_at']); ?></p>
                 <?php } else { ?>
@@ -132,15 +129,27 @@ if ($student_id) {
                 <?php } ?>
 
                 <?php if ($has_active_assignment) { ?>
-                <button onclick="window.location.href='room_change.php?user_id=<?php echo urlencode($user_id); ?>'"
+                <button onclick="window.location.href='room_change.php?user_id=<?php echo urlencode($student_id); ?>'"
                         class="py-2.5 px-4 text-sm bg-blue-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transform hover:scale-[1.01]">
                     Request Room Change
                 </button>
+                
+                <button onclick="if(confirm('Are you sure you want to checkout from <?php echo htmlspecialchars($room_details['room_identifier']); ?>?')) { window.location.href='room_checkout.php?room_identifier=<?php echo urlencode($room_details['room_identifier']); ?>'; }"
+                        class="py-2.5 px-4 text-sm bg-yellow-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-300 transform hover:scale-[1.01]">
+                    Checkout Room
+                </button>
+
                 <?php } else { ?>
                 <button
                     class="py-2.5 px-4 text-sm bg-gray-400 text-white font-medium rounded-lg cursor-not-allowed opacity-60"
                     disabled>
                     Request Room Change
+                </button>
+
+                <button
+                    class="py-2.5 px-4 text-sm bg-gray-400 text-white font-medium rounded-lg cursor-not-allowed opacity-60"
+                    disabled>
+                    Checkout Room
                 </button>
                 <?php } ?>
                 

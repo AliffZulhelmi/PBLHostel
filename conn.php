@@ -68,6 +68,26 @@ function assignstudenttoroom($student_id, $room_identifier) {
     return $conn->query($sql);
 }
 
+// NEW: Updates room capacity and status after a student checks out
+function updateRoomCapacityAfterCheckout($room_identifier) {
+    global $conn;
+    // Increment available_capacity by 1
+    $conn->query("UPDATE rooms SET available_capacity = available_capacity + 1 WHERE room_identifier = '$room_identifier'");
+
+    // Set status to 'Available' if it was 'Occupied' (since there is now at least 1 spot)
+    return $conn->query("UPDATE rooms SET status='Available' WHERE room_identifier='$room_identifier' AND status='Occupied'");
+}
+
+// NEW: Updates student_rooms status to 'Released'
+function checkoutStudentFromRoom($student_id, $room_identifier) {
+    global $conn;
+    $current_time = date("Y-m-d H:i:s");
+    $sql = "UPDATE student_rooms 
+            SET status = 'Released', released_at = '$current_time'
+            WHERE student_id = '$student_id' AND room_identifier = '$room_identifier' AND status = 'Active'";
+    return $conn->query($sql);
+}
+
 // NEW: Updates room capacity and status after a student is assigned
 function updateRoomCapacityAfterAssignment($room_identifier) {
     global $conn;
