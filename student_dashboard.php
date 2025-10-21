@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+require_once 'conn.php';
+
 // If user is not logged in or not a student, redirect to login page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
     header('Location: login.php');
@@ -8,10 +10,26 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
 }
 
 // Extract session information
-// Note: Keeping the space in 'full _name' as per your original code
 $full_name = isset($_SESSION['full _name']) ? $_SESSION['full _name'] : 'Name not found! DB issue';
 $student_id = isset($_SESSION['student_id']) ? $_SESSION['student_id'] : 'StudentID not found! DB issue';
 
+// Fetch accommodation info for this student
+$has_active_assignment = false;
+$room_details = null;
+
+if ($student_id && $student_id !== 'StudentID not found! DB issue') {
+    // You can freely adjust: No prevention needed
+    $sql = "SELECT sr.*, r.block_id, r.floor, r.room_number, r.partition_capacity, r.status as room_status
+            FROM student_rooms sr
+            LEFT JOIN rooms r ON sr.room_id = r.room_id
+            WHERE sr.student_id = '$student_id' AND sr.status = 'Active'
+            LIMIT 1";
+    $res = $conn->query($sql);
+    if ($res && $res->num_rows > 0) {
+        $room_details = $res->fetch_assoc();
+        $has_active_assignment = true;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -56,7 +74,6 @@ $student_id = isset($_SESSION['student_id']) ? $_SESSION['student_id'] : 'Studen
         </div>
 
         <!-- User Info / Header Text (Tailwind: text-right, uses responsive classes) -->
-        <!-- This replaces the original .bg-gray-400 div and ensures it sits on the right -->
         <div class="hidden sm:block text-right p-2 rounded-lg bg-gray-700 ml-4">
             <p class="text-base sm:text-lg font-semibold text-indigo-400">
                 Hello, <strong><?php echo htmlspecialchars($full_name); ?></strong>
@@ -67,7 +84,6 @@ $student_id = isset($_SESSION['student_id']) ? $_SESSION['student_id'] : 'Studen
         </div>
     </header>
 
-    <!-- Main Container (Tailwind: max-w, mx-auto, my-10, padding, bg-white, rounded-xl, shadow) -->
     <div class="max-w-[900px] mx-auto my-10 p-5 bg-white rounded-xl shadow-2xl">
 
         <!-- Current Room Assignment Section (Tailwind: mb-8 for margin-bottom) -->
@@ -76,16 +92,25 @@ $student_id = isset($_SESSION['student_id']) ? $_SESSION['student_id'] : 'Studen
             
             <!-- Room Info Card (Tailwind: bg-indigo-50, p-4, rounded-lg, space-y-2) -->
             <div class="bg-indigo-50 p-4 rounded-lg space-y-2 border border-indigo-200">
-                <!-- Replace values dynamically in your implementation -->
-                <p><strong class="text-indigo-700">Block:</strong> A2</p>
-                <p><strong class="text-indigo-700">Floor:</strong> 3</p>
-                <p><strong class="text-indigo-700">Room Number:</strong> 07</p>
-                <p><strong class="text-indigo-700">Semester:</strong> Semester 4</p>
+                <?php if ($has_active_assignment && $room_details) { ?>
+                    <p><strong class="text-indigo-700">Block:</strong> <?php echo htmlspecialchars($room_details['block_id']); ?></p>
+                    <p><strong class="text-indigo-700">Floor:</strong> <?php echo htmlspecialchars($room_details['floor']); ?></p>
+                    <p><strong class="text-indigo-700">Room Number:</strong> <?php echo htmlspecialchars($room_details['room_number']); ?></p>
+                    <p><strong class="text-indigo-700">Partition Capacity:</strong> <?php echo htmlspecialchars($room_details['partition_capacity']); ?></p>
+                    <p><strong class="text-indigo-700">Semester:</strong> <?php echo htmlspecialchars($room_details['semester']); ?></p>
+                    <p><strong class="text-indigo-700">Assigned At:</strong> <?php echo htmlspecialchars($room_details['assigned_at']); ?></p>
+                <?php } else { ?>
+                    <p class="text-gray-500 italic">No active room assignment found.</p>
+                <?php } ?>
             </div>
             
             <!-- Note (Tailwind: text-sm, text-gray-500, mt-3) -->
             <p class="text-sm text-gray-500 mt-3 italic">
-                If no room is assigned, please use the registration button below.
+                <?php if ($has_active_assignment && $room_details) { ?>
+                    If you wish to request a room change, use the button below.
+                <?php } else { ?>
+                    If no room is assigned, please use the registration button below.
+                <?php } ?>
             </p>
         </section>
 
@@ -96,14 +121,22 @@ $student_id = isset($_SESSION['student_id']) ? $_SESSION['student_id'] : 'Studen
             <!-- Actions Block (Tailwind: bg-gray-200, p-4, rounded-lg, gap-3 for spacing) -->
             <div class="bg-gray-200 p-4 rounded-lg flex flex-wrap gap-3">
                 
-                <!-- Button: Register Room (Tailwind: blue styling, hover/focus effects) -->
-                <button onclick="window.location.href='register_room.php'"
+                <!-- Button: Register Room -->
+                <?php if (!$has_active_assignment) { ?>
+                <button onclick="window.location.href='room_register.php?student_id=<?php echo urlencode($student_id); ?>'"
                         class="py-2.5 px-4 text-sm bg-blue-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transform hover:scale-[1.01]">
                     Register Room
                 </button>
+                <?php } else { ?>
+                <button
+                    class="py-2.5 px-4 text-sm bg-gray-400 text-white font-medium rounded-lg cursor-not-allowed opacity-60"
+                    disabled>
+                    Register Room
+                </button>
+                <?php } ?>
 
                 <!-- Button: Request Room Change -->
-                <button onclick="window.location.href='#blank'"
+                <button onclick="window.location.href='room_change.php<?php echo $has_active_assignment ? '?student_id=' . urlencode($student_id) : ''; ?>'"
                         class="py-2.5 px-4 text-sm bg-blue-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transform hover:scale-[1.01]">
                     Request Room Change
                 </button>
