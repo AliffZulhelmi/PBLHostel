@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 22, 2025 at 06:04 AM
+-- Generation Time: Oct 22, 2025 at 06:39 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -93,7 +93,7 @@ INSERT INTO `rooms` (`room_identifier`, `block_id`, `floor_no`, `room_no`, `tota
 ('A1-05-003', 'A1', '05', '003', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A1-05-004', 'A1', '05', '004', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A1-05-005', 'A1', '05', '005', 6, 6, 'Available', '2025-10-21 04:19:44'),
-('A4-01-001', 'A4', '01', '001', 6, 5, 'Available', '2025-10-21 04:19:44'),
+('A4-01-001', 'A4', '01', '001', 6, 4, 'Available', '2025-10-21 04:19:44'),
 ('A4-01-002', 'A4', '01', '002', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A4-01-003', 'A4', '01', '003', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A4-01-004', 'A4', '01', '004', 6, 6, 'Available', '2025-10-21 04:19:44'),
@@ -169,7 +169,11 @@ INSERT INTO `student_rooms` (`sr_id`, `student_id`, `room_identifier`, `semester
 (2, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-21 06:42:12', '2025-10-21 00:42:19'),
 (3, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-21 06:42:20', '2025-10-21 01:01:13'),
 (4, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-21 07:01:17', '2025-10-21 22:02:43'),
-(5, 'CBS24001002', 'A4-01-001', '2025/1', 'Active', '2025-10-22 04:03:38', NULL);
+(5, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-22 04:03:38', '2025-10-21 22:29:36'),
+(6, 'CBS24001002', 'A5-05-005', '2025/1', 'Released', '2025-10-22 04:29:36', '2025-10-21 22:33:35'),
+(7, 'CBS24001002', 'A5-05-001', '2025/1', 'Released', '2025-10-22 04:33:35', '2025-10-21 22:33:45'),
+(8, 'CBS24001002', 'A4-01-001', '2025/1', 'Active', '2025-10-22 04:34:10', NULL),
+(9, 'CBS24001010', 'A4-01-001', '2025/1', 'Active', '2025-10-22 04:38:27', NULL);
 
 -- --------------------------------------------------------
 
@@ -182,6 +186,7 @@ CREATE TABLE `tickets` (
   `student_id` varchar(50) NOT NULL,
   `category` varchar(100) DEFAULT NULL,
   `description` text DEFAULT NULL,
+  `attachment_path` varchar(255) DEFAULT NULL,
   `status` varchar(20) DEFAULT 'Open',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -191,9 +196,12 @@ CREATE TABLE `tickets` (
 -- Dumping data for table `tickets`
 --
 
-INSERT INTO `tickets` (`ticket_id`, `student_id`, `category`, `description`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-05-005.', 'Pending', '2025-10-21 06:54:40', '2025-10-21 06:54:40'),
-(2, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-05-005.', 'Pending', '2025-10-21 07:01:36', '2025-10-21 07:01:36');
+INSERT INTO `tickets` (`ticket_id`, `student_id`, `category`, `description`, `attachment_path`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-05-005.', NULL, 'Rejected', '2025-10-21 06:54:40', '2025-10-22 04:29:42'),
+(2, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-05-005.', NULL, 'Approved', '2025-10-21 07:01:36', '2025-10-22 04:29:36'),
+(3, 'CBS24001002', 'Broken Furniture', 'Meja belajar rosak, kaki senget', 'uploads/complaints/CBS24001002_1761107247_images.jpeg', 'Under Review', '2025-10-22 04:27:27', '2025-10-22 04:35:20'),
+(4, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A5-05-005 to A5-05-001.', NULL, 'Approved', '2025-10-22 04:33:20', '2025-10-22 04:33:35'),
+(5, 'CBS24001002', 'Noise Complaint', 'Jiran buka lagu bapak kuat kontol', 'uploads/complaints/CBS24001002_1761107681_arul yellow.png', 'Resolved', '2025-10-22 04:34:41', '2025-10-22 04:35:09');
 
 -- --------------------------------------------------------
 
@@ -220,7 +228,8 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`student_id`, `full_name`, `email`, `phone`, `password`, `role`, `gender`, `created_at`, `updated_at`) VALUES
 ('ADMIN001', 'System Admin', 'admin@gmi.edu.my', NULL, 'admin123', 'admin', NULL, '2025-10-08 05:25:46', '2025-10-08 05:25:46'),
 ('CBS24001001', 'Ali Bin Abu', 'ali.abu@student.gmi.edu.my', '0177159590', 'Password123', 'student', 'male', '2025-10-10 03:35:17', '2025-10-10 03:35:17'),
-('CBS24001002', 'MUHAMMAD ABU BIN ALSAGOS', 'abu.alsagos@student.gmi.edu.my', '0144153120', 'Password123', 'student', 'male', '2025-10-21 04:23:38', '2025-10-21 04:23:38');
+('CBS24001002', 'MUHAMMAD ABU BIN ALSAGOS', 'abu.alsagos@student.gmi.edu.my', '0144153120', 'Password123', 'student', 'male', '2025-10-21 04:23:38', '2025-10-21 04:23:38'),
+('CBS24001010', 'Aizat Bin Khamis', 'aizat.khamis@student.gmi.edu.my', '0165437590', 'Password123', 'student', 'male', '2025-10-22 04:38:11', '2025-10-22 04:38:11');
 
 --
 -- Indexes for dumped tables
@@ -269,13 +278,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `student_rooms`
 --
 ALTER TABLE `student_rooms`
-  MODIFY `sr_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `sr_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `tickets`
 --
 ALTER TABLE `tickets`
-  MODIFY `ticket_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `ticket_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables

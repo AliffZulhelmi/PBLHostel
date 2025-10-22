@@ -18,7 +18,6 @@ $has_active_assignment = false;
 $room_details = null;
 
 if ($student_id) {
-    // FIXED: Uses student_id FK and room_identifier FK
     // FIXED: Queries new columns total_capacity and available_capacity
     $sql = "SELECT sr.*, r.block_id, r.floor_no as floor, r.room_no as room_number, r.total_capacity, r.available_capacity, r.status as room_status
             FROM student_rooms sr
@@ -78,12 +77,26 @@ if ($student_id) {
 
 <div class="max-w-[900px] mx-auto my-10 p-5 bg-white rounded-xl shadow-2xl">
 
-    <?php if (isset($_SESSION['room_message'])): ?>
+    <?php 
+    // Display all session messages (new and old)
+    if (isset($_SESSION['room_message'])): ?>
         <div class="mb-4 p-4 rounded-lg bg-green-100 text-green-700 border border-green-300">
             <?php echo htmlspecialchars($_SESSION['room_message']); ?>
         </div>
         <?php unset($_SESSION['room_message']); ?>
     <?php endif; ?>
+
+    <?php if (isset($_SESSION['admin_message'])): ?>
+        <?php $msg = $_SESSION['admin_message']; 
+        $is_error = strpos($msg, 'rejected') !== false || strpos($msg, 'failed') !== false;
+        $color = $is_error ? 'bg-red-100 text-red-700 border-red-300' : 'bg-green-100 text-green-700 border-green-300';
+        ?>
+        <div class="mb-4 p-4 rounded-lg <?php echo $color; ?> border">
+            <?php echo htmlspecialchars($msg); ?>
+        </div>
+        <?php unset($_SESSION['admin_message']); ?>
+    <?php endif; ?>
+
 
     <section class="mb-8">
         <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Current Room Assignment</h2>
@@ -152,7 +165,16 @@ if ($student_id) {
                     Checkout Room
                 </button>
                 <?php } ?>
+
+                <button onclick="window.location.href='student_file_complaint.php'"
+                        class="py-2.5 px-4 text-sm bg-purple-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 transform hover:scale-[1.01]">
+                    File a Complaint
+                </button>
                 
+                <button onclick="window.location.href='student_complaint_list.php'"
+                        class="py-2.5 px-4 text-sm bg-purple-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 transform hover:scale-[1.01]">
+                    View My Complaints
+                </button>
                 <button onclick="window.location.href='logout.php'"
                         class="py-2.5 px-4 text-sm bg-red-500 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-red-600 focus:ring-4 focus:ring-red-300 transform hover:scale-[1.01]">
                     Logout

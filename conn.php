@@ -28,14 +28,12 @@ function register($full_name, $student_id, $email, $phone, $password, $role, $ge
 
 function login($email, $password) {
     global $conn;
-    // Note: Admin login is via email and a NULL student_id (changed in SQL to 'ADMIN001' now)
     $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
     $result = $conn->query($sql);
     $user = $result ? $result->fetch_assoc() : false;
     return $user;
 }
 
-// FIXED: Queries by the string student_id (new PK)
 function getUserGender($student_id) {
     global $conn;
     $genderQuery = $conn->query("SELECT gender FROM users WHERE student_id = '$student_id'");
@@ -58,8 +56,6 @@ function selectAllUser() {
 // Room Management Functions
 // ------------------------------------
 
-// FIXED: Searches for rooms where available_capacity is greater than 0
-// RETURNS: room_identifier and available_capacity
 function findavailableroom($blocks) {
     global $conn;
     $roomQuery = $conn->query("
@@ -72,10 +68,8 @@ function findavailableroom($blocks) {
     return $roomQuery && $roomQuery->num_rows > 0 ? $roomQuery->fetch_assoc() : null;
 }
 
-// NEW: Fetches available room details based on gender
 function getAvailableRoomsByGender($gender) {
     global $conn;
-    // Allowed blocks based on student_dashboard logic
     $blocks = ($gender == 'male') ? "'A4','A5'" : "'A1'";
 
     $query = "
@@ -94,7 +88,6 @@ function getAvailableRoomsByGender($gender) {
     return $data;
 }
 
-// NEW: Submits a room change request to the tickets table for admin processing
 function submitRoomChangeRequest($student_id, $current_room_id, $new_room_id) {
     global $conn;
     $description = "REQUEST: Student $student_id requests room change from $current_room_id to $new_room_id.";
@@ -103,7 +96,6 @@ function submitRoomChangeRequest($student_id, $current_room_id, $new_room_id) {
     return $conn->query($sql);
 }
 
-// FIXED: Uses string $student_id and new string $room_identifier
 function assignstudenttoroom($student_id, $room_identifier) {
     global $conn;
     $sql = "INSERT INTO student_rooms (student_id, room_identifier, semester, status)
@@ -111,17 +103,12 @@ function assignstudenttoroom($student_id, $room_identifier) {
     return $conn->query($sql);
 }
 
-// NEW: Updates room capacity and status after a student checks out
 function updateRoomCapacityAfterCheckout($room_identifier) {
     global $conn;
-    // Increment available_capacity by 1
     $conn->query("UPDATE rooms SET available_capacity = available_capacity + 1 WHERE room_identifier = '$room_identifier'");
-
-    // Set status to 'Available' if it was 'Occupied' (since there is now at least 1 spot)
     return $conn->query("UPDATE rooms SET status='Available' WHERE room_identifier='$room_identifier' AND status='Occupied'");
 }
 
-// NEW: Updates student_rooms status to 'Released'
 function checkoutStudentFromRoom($student_id, $room_identifier) {
     global $conn;
     $current_time = date("Y-m-d H:i:s");
@@ -131,33 +118,105 @@ function checkoutStudentFromRoom($student_id, $room_identifier) {
     return $conn->query($sql);
 }
 
-// NEW: Updates room capacity and status after a student is assigned
 function updateRoomCapacityAfterAssignment($room_identifier) {
     global $conn;
-    // Decrement available_capacity by 1
     $conn->query("UPDATE rooms SET available_capacity = available_capacity - 1 WHERE room_identifier = '$room_identifier'");
-
-    // Check if room is now full
     $checkSql = "SELECT available_capacity FROM rooms WHERE room_identifier = '$room_identifier'";
     $result = $conn->query($checkSql);
     $capacity = $result ? $result->fetch_assoc()['available_capacity'] : 0;
 
     if ($capacity <= 0) {
-        // Change status to 'Occupied' (Full)
         return $conn->query("UPDATE rooms SET status='Occupied' WHERE room_identifier='$room_identifier'");
     }
     return true;
 }
 
 // ------------------------------------
-// Admin Dashboard Functions (NEW)
+// Admin & Complaint Functions (NEW)
 // ------------------------------------
 
-function getAllRoomsStatus() {
+function getTicketDetails($ticket_id) {
     global $conn;
-    $query = "SELECT room_identifier, block_id, floor_no, room_no, total_capacity, available_capacity, status 
-              FROM rooms 
-              ORDER BY room_identifier";
+    $query = "SELECT student_id, description FROM tickets WHERE ticket_id = $ticket_id AND category = 'Room Change' LIMIT 1";
+    $result = $conn->query($query);
+    return $result ? $result->fetch_assoc() : null;
+}
+
+function approveRoomChange($student_id, $old_room_id, $new_room_id, $ticket_id) {
+    global $conn;
+    $conn->autocommit(FALSE);
+    $success = true;
+
+    // 1. Mark current assignment as Released
+    $current_time = date("Y-m-d H:i:s");
+    $sql_release = "UPDATE student_rooms 
+                    SET status = 'Released', released_at = '$current_time'
+                    WHERE student_id = '$student_id' AND room_identifier = '$old_room_id' AND status = 'Active'";
+    if (!$conn->query($sql_release)) { $success = false; }
+    
+    // 2. Update OLD room capacity (+1) and status ('Available')
+    if ($success) {
+        $sql_old_capacity = "UPDATE rooms SET available_capacity = available_capacity + 1, status = 'Available' 
+                             WHERE room_identifier = '$old_room_id'";
+        if (!$conn->query($sql_old_capacity)) { $success = false; }
+    }
+    
+    // 3. Create new assignment (Active)
+    if ($success) {
+        $sql_assign = "INSERT INTO student_rooms (student_id, room_identifier, semester, status)
+                       VALUES ('$student_id', '$new_room_id', '2025/1', 'Active')";
+        if (!$conn->query($sql_assign)) { $success = false; }
+    }
+    
+    // 4. Update NEW room capacity (-1) and check if full
+    if ($success) {
+        $sql_new_capacity = "UPDATE rooms SET available_capacity = available_capacity - 1 
+                             WHERE room_identifier = '$new_room_id'";
+        if (!$conn->query($sql_new_capacity)) { $success = false; }
+        
+        $checkSql = "SELECT available_capacity FROM rooms WHERE room_identifier = '$new_room_id'";
+        $result = $conn->query($checkSql);
+        $capacity = $result ? $result->fetch_assoc()['available_capacity'] : 1;
+        if ($capacity <= 0) {
+            $sql_full = "UPDATE rooms SET status='Occupied' WHERE room_identifier='$new_room_id'";
+            if (!$conn->query($sql_full)) { $success = false; }
+        }
+    }
+    
+    // 5. Update ticket status
+    if ($success) {
+        $sql_ticket = "UPDATE tickets SET status = 'Approved' WHERE ticket_id = $ticket_id";
+        if (!$conn->query($sql_ticket)) { $success = false; }
+    }
+
+    if ($success) {
+        $conn->commit();
+        return true;
+    } else {
+        $conn->rollback();
+        return false;
+    }
+}
+
+function rejectRoomChange($ticket_id) {
+    global $conn;
+    $sql = "UPDATE tickets SET status = 'Rejected' WHERE ticket_id = $ticket_id";
+    return $conn->query($sql);
+}
+
+function submitComplaint($student_id, $category, $description, $attachment_path = NULL) {
+    global $conn;
+    $status = ($category == 'Room Change') ? 'Pending' : 'Open';
+    $sql = "INSERT INTO tickets (student_id, category, description, attachment_path, status)
+            VALUES ('$student_id', '$category', '$description', '$attachment_path', '$status')";
+    return $conn->query($sql);
+}
+
+function getStudentComplaints($student_id) {
+    global $conn;
+    $query = "SELECT ticket_id, category, description, created_at, status, attachment_path FROM tickets 
+              WHERE student_id = '$student_id' AND category != 'Room Change'
+              ORDER BY created_at DESC";
     $result = $conn->query($query);
     $data = [];
     if ($result) {
@@ -166,6 +225,51 @@ function getAllRoomsStatus() {
         }
     }
     return $data;
+}
+
+function getAllComplaints() {
+    global $conn;
+    $query = "SELECT t.ticket_id, t.student_id, t.category, t.description, t.attachment_path, t.created_at, t.status, u.full_name
+              FROM tickets t
+              JOIN users u ON t.student_id = u.student_id
+              WHERE t.category != 'Room Change'
+              ORDER BY t.created_at DESC";
+    $result = $conn->query($query);
+    $data = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    return $data;
+}
+
+function updateTicketStatus($ticket_id, $status) {
+    global $conn;
+    $sql = "UPDATE tickets SET status = '$status', updated_at = CURRENT_TIMESTAMP WHERE ticket_id = $ticket_id";
+    return $conn->query($sql);
+}
+
+
+// Admin Dashboard Functions (Objective 2 & 3)
+
+function getRoomsGroupedByBlock() {
+    global $conn;
+    $query = "SELECT room_identifier, block_id, floor_no, room_no, total_capacity, available_capacity, status 
+              FROM rooms 
+              ORDER BY block_id, room_identifier";
+    $result = $conn->query($query);
+    $grouped_data = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $block = $row['block_id'];
+            if (!isset($grouped_data[$block])) {
+                $grouped_data[$block] = [];
+            }
+            $grouped_data[$block][] = $row;
+        }
+    }
+    return $grouped_data;
 }
 
 function getRoomChangeRequests() {
@@ -179,6 +283,9 @@ function getRoomChangeRequests() {
     $data = [];
     if ($result) {
         while ($row = $result->fetch_assoc()) {
+            preg_match("/from\s(.*?)\sto\s(.*?)\./", $row['description'], $matches);
+            $row['old_room_id'] = $matches[1] ?? 'N/A';
+            $row['new_room_id'] = $matches[2] ?? 'N/A';
             $data[] = $row;
         }
     }
@@ -187,7 +294,7 @@ function getRoomChangeRequests() {
 
 function getRoomRegisterRecords() {
     global $conn;
-    $query = "SELECT sr.sr_id, sr.student_id, sr.room_identifier, sr.semester, sr.status as assignment_status, sr.assigned_at, u.full_name
+    $query = "SELECT sr.sr_id, sr.student_id, sr.room_identifier, sr.semester, sr.status as assignment_status, sr.assigned_at, sr.released_at, u.full_name
               FROM student_rooms sr
               JOIN users u ON sr.student_id = u.student_id
               ORDER BY sr.assigned_at DESC";
