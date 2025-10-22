@@ -42,6 +42,18 @@ function getUserGender($student_id) {
     return $genderQuery ? $genderQuery->fetch_assoc()['gender'] : null;
 }
 
+function selectAllUser() {
+    global $conn;
+    $result = $conn->query("SELECT full_name, student_id, email, phone, role, gender, created_at FROM users");
+    $users = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $users[] = $row;
+        }
+    }
+    return $users;
+}
+
 // ------------------------------------
 // Room Management Functions
 // ------------------------------------
@@ -137,16 +149,70 @@ function updateRoomCapacityAfterAssignment($room_identifier) {
     return true;
 }
 
-function selectAllUser() {
+// ------------------------------------
+// Admin Dashboard Functions (NEW)
+// ------------------------------------
+
+function getAllRoomsStatus() {
     global $conn;
-    $result = $conn->query("SELECT full_name, student_id, email, phone, role, gender, created_at FROM users");
-    $users = [];
+    $query = "SELECT room_identifier, block_id, floor_no, room_no, total_capacity, available_capacity, status 
+              FROM rooms 
+              ORDER BY room_identifier";
+    $result = $conn->query($query);
+    $data = [];
     if ($result) {
         while ($row = $result->fetch_assoc()) {
-            $users[] = $row;
+            $data[] = $row;
         }
     }
-    return $users;
+    return $data;
 }
 
+function getRoomChangeRequests() {
+    global $conn;
+    $query = "SELECT t.ticket_id, t.student_id, t.description, t.created_at, t.status, u.full_name, u.gender
+              FROM tickets t
+              JOIN users u ON t.student_id = u.student_id
+              WHERE t.category = 'Room Change'
+              ORDER BY t.created_at DESC";
+    $result = $conn->query($query);
+    $data = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    return $data;
+}
+
+function getRoomRegisterRecords() {
+    global $conn;
+    $query = "SELECT sr.sr_id, sr.student_id, sr.room_identifier, sr.semester, sr.status as assignment_status, sr.assigned_at, u.full_name
+              FROM student_rooms sr
+              JOIN users u ON sr.student_id = u.student_id
+              ORDER BY sr.assigned_at DESC";
+    $result = $conn->query($query);
+    $data = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    return $data;
+}
+
+function getRoomCapacitySummary() {
+    global $conn;
+    $query = "SELECT block_id, SUM(total_capacity) as total, SUM(available_capacity) as available
+              FROM rooms
+              GROUP BY block_id";
+    $result = $conn->query($query);
+    $data = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    return $data;
+}
 ?>
