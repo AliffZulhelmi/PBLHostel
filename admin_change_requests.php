@@ -1,12 +1,19 @@
 <?php
+// ===============================
+// Admin - View and Manage Room Change Requests
+// ===============================
+
 session_start();
 require_once 'conn.php';
 
+// ----------- AUTHORIZATION -----------
+// Only allow admin access. Redirect others to login page.
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: login.php');
     exit;
 }
 
+// ----------- FETCH REQUESTS DATA -----------
 $change_requests = getRoomChangeRequests();
 ?>
 
@@ -17,6 +24,7 @@ $change_requests = getRoomChangeRequests();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Room Change Requests - Admin</title>
     
+    <!-- TailwindCSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
@@ -24,13 +32,16 @@ $change_requests = getRoomChangeRequests();
 </head>
 <body class="bg-gray-100 text-gray-900 m-0 p-0">
 
-    <?php include 'admin_nav.php'; ?>
+    <?php include 'admin_nav.php'; // Admin navigation bar ?>
 
     <div class="max-w-7xl mx-auto my-10 p-5 bg-white rounded-xl shadow-2xl">
         <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">Room Change Requests</h2>
 
-        <?php if (isset($_SESSION['admin_message'])): ?>
-            <?php $msg = $_SESSION['admin_message']; 
+        <?php
+        // ----------- FLASH MESSAGE FOR ADMIN ACTIONS -----------
+        // Shows success/error after approving or rejecting requests.
+        if (isset($_SESSION['admin_message'])):
+            $msg = $_SESSION['admin_message'];
             $is_error = strpos($msg, 'rejected') !== false || strpos($msg, 'failed') !== false;
             $color = $is_error ? 'bg-red-100 text-red-700 border-red-300' : 'bg-green-100 text-green-700 border-green-300';
             ?>
@@ -40,10 +51,16 @@ $change_requests = getRoomChangeRequests();
             <?php unset($_SESSION['admin_message']); ?>
         <?php endif; ?>
 
+        <!--
+            Room Change Requests Table
+            - Shows: Ticket ID, Student Info, Requested Change (Old/New Room), Request Status, and Action
+            - Actions: Approve / Reject (only if status is Pending)
+        -->
         <div class="overflow-x-auto bg-white rounded-lg shadow">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
+                        <!-- Table Headers for clarity -->
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket ID</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested Change</th>
@@ -53,18 +70,30 @@ $change_requests = getRoomChangeRequests();
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php if (empty($change_requests)): ?>
-                        <tr><td colspan="5" class="px-6 py-4 text-center text-gray-500 italic">No room change requests found.</td></tr>
+                        <!-- Empty state: No change requests -->
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 italic">
+                                No room change requests found.
+                            </td>
+                        </tr>
                     <?php endif; ?>
                     <?php foreach ($change_requests as $request): ?>
                         <tr class="<?php echo ($request['status'] === 'Pending') ? 'bg-yellow-50' : ''; ?>">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?php echo htmlspecialchars($request['ticket_id']); ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                <?php echo htmlspecialchars($request['full_name']); ?> (<?php echo htmlspecialchars($request['student_id']); ?>)
+                            <!-- Ticket ID -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <?php echo htmlspecialchars($request['ticket_id']); ?>
                             </td>
+                            <!-- Student Name (ID) -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <?php echo htmlspecialchars($request['full_name']); ?>
+                                (<?php echo htmlspecialchars($request['student_id']); ?>)
+                            </td>
+                            <!-- Requested Change info: FROM old room TO new room -->
                             <td class="px-6 py-4 text-sm text-gray-700">
                                 <span class="font-medium">FROM:</span> <?php echo htmlspecialchars($request['old_room_id']); ?><br>
                                 <span class="font-medium">TO:</span> <?php echo htmlspecialchars($request['new_room_id']); ?>
                             </td>
+                            <!-- Request Status, color-tagged -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     <?php 
@@ -75,11 +104,14 @@ $change_requests = getRoomChangeRequests();
                                     <?php echo htmlspecialchars($request['status']); ?>
                                 </span>
                             </td>
+                            <!-- ADMIN ACTION BUTTONS: Approve/Reject if Pending, else Completed -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                 <?php if ($request['status'] === 'Pending'): ?>
+                                    <!-- Approve request button -->
                                     <a href="admin_process_request.php?action=approve&ticket_id=<?php echo $request['ticket_id']; ?>" 
                                        onclick="return confirm('APPROVE room change for <?php echo htmlspecialchars($request['student_id']); ?> to <?php echo htmlspecialchars($request['new_room_id']); ?>?')"
                                        class="text-green-600 hover:text-green-900 font-bold">Approve</a>
+                                    <!-- Reject request button -->
                                     <a href="admin_process_request.php?action=reject&ticket_id=<?php echo $request['ticket_id']; ?>" 
                                        onclick="return confirm('REJECT room change for <?php echo htmlspecialchars($request['student_id']); ?>?')"
                                        class="text-red-600 hover:text-red-900">Reject</a>
