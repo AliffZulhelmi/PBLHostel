@@ -42,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // In a real environment, you would use: move_uploaded_file($_FILES['attachment']['tmp_name'], $target_file);
                 $attachment_path = $target_file;
+                move_uploaded_file($_FILES['attachment']['tmp_name'], $target_file);
             }
 
             // 3. Update the ticket with the attachment path if file was uploaded

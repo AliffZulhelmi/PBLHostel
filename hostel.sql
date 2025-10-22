@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 22, 2025 at 07:07 AM
+-- Generation Time: Oct 22, 2025 at 09:52 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -68,7 +68,7 @@ CREATE TABLE `rooms` (
 --
 
 INSERT INTO `rooms` (`room_identifier`, `block_id`, `floor_no`, `room_no`, `total_capacity`, `available_capacity`, `status`, `created_at`) VALUES
-('A1-01-001', 'A1', '01', '001', 6, 6, 'Available', '2025-10-21 04:19:44'),
+('A1-01-001', 'A1', '01', '001', 6, 6, 'Under Maintenance', '2025-10-21 04:19:44'),
 ('A1-01-002', 'A1', '01', '002', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A1-01-003', 'A1', '01', '003', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A1-01-004', 'A1', '01', '004', 6, 6, 'Available', '2025-10-21 04:19:44'),
@@ -93,10 +93,10 @@ INSERT INTO `rooms` (`room_identifier`, `block_id`, `floor_no`, `room_no`, `tota
 ('A1-05-003', 'A1', '05', '003', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A1-05-004', 'A1', '05', '004', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A1-05-005', 'A1', '05', '005', 6, 6, 'Available', '2025-10-21 04:19:44'),
-('A4-01-001', 'A4', '01', '001', 6, 4, 'Available', '2025-10-21 04:19:44'),
-('A4-01-002', 'A4', '01', '002', 6, 6, 'Available', '2025-10-21 04:19:44'),
-('A4-01-003', 'A4', '01', '003', 6, 6, 'Available', '2025-10-21 04:19:44'),
-('A4-01-004', 'A4', '01', '004', 6, 6, 'Available', '2025-10-21 04:19:44'),
+('A4-01-001', 'A4', '01', '001', 6, 6, 'Available', '2025-10-21 04:19:44'),
+('A4-01-002', 'A4', '01', '002', 6, 6, 'Broken', '2025-10-21 04:19:44'),
+('A4-01-003', 'A4', '01', '003', 6, 6, 'Occupied', '2025-10-21 04:19:44'),
+('A4-01-004', 'A4', '01', '004', 6, 6, 'Cleaning', '2025-10-21 04:19:44'),
 ('A4-01-005', 'A4', '01', '005', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A4-02-001', 'A4', '02', '001', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A4-02-002', 'A4', '02', '002', 6, 6, 'Available', '2025-10-21 04:19:44'),
@@ -116,8 +116,6 @@ INSERT INTO `rooms` (`room_identifier`, `block_id`, `floor_no`, `room_no`, `tota
 ('A4-05-001', 'A4', '05', '001', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A4-05-002', 'A4', '05', '002', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A4-05-003', 'A4', '05', '003', 6, 6, 'Available', '2025-10-21 04:19:44'),
-('A4-05-004', 'A4', '05', '004', 6, 6, 'Available', '2025-10-21 04:19:44'),
-('A4-05-005', 'A4', '05', '005', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A5-01-001', 'A5', '01', '001', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A5-01-002', 'A5', '01', '002', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A5-01-003', 'A5', '01', '003', 6, 6, 'Available', '2025-10-21 04:19:44'),
@@ -142,7 +140,7 @@ INSERT INTO `rooms` (`room_identifier`, `block_id`, `floor_no`, `room_no`, `tota
 ('A5-05-002', 'A5', '05', '002', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A5-05-003', 'A5', '05', '003', 6, 6, 'Available', '2025-10-21 04:19:44'),
 ('A5-05-004', 'A5', '05', '004', 6, 6, 'Available', '2025-10-21 04:19:44'),
-('A5-05-005', 'A5', '05', '005', 6, 6, 'Available', '2025-10-21 04:19:44');
+('A5-05-005', 'A5', '05', '005', 6, 5, 'Available', '2025-10-21 04:19:44');
 
 -- --------------------------------------------------------
 
@@ -172,8 +170,15 @@ INSERT INTO `student_rooms` (`sr_id`, `student_id`, `room_identifier`, `semester
 (5, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-22 04:03:38', '2025-10-21 22:29:36'),
 (6, 'CBS24001002', 'A5-05-005', '2025/1', 'Released', '2025-10-22 04:29:36', '2025-10-21 22:33:35'),
 (7, 'CBS24001002', 'A5-05-001', '2025/1', 'Released', '2025-10-22 04:33:35', '2025-10-21 22:33:45'),
-(8, 'CBS24001002', 'A4-01-001', '2025/1', 'Active', '2025-10-22 04:34:10', NULL),
-(9, 'CBS24001010', 'A4-01-001', '2025/1', 'Active', '2025-10-22 04:38:27', NULL);
+(8, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-22 04:34:10', '2025-10-22 00:43:48'),
+(9, 'CBS24001010', 'A4-01-001', '2025/1', 'Released by Admin', '2025-10-22 04:38:27', '2025-10-22 00:55:32'),
+(10, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-22 06:43:50', '2025-10-22 00:45:04'),
+(12, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-22 07:05:26', '2025-10-22 01:06:12'),
+(13, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-22 07:11:07', '2025-10-22 01:12:04'),
+(14, 'CBS24001002', 'A5-05-005', '2025/1', 'Released', '2025-10-22 07:12:04', '2025-10-22 01:12:29'),
+(15, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-22 07:12:41', '2025-10-22 01:32:24'),
+(16, 'CBS24001002', 'A4-01-001', '2025/1', 'Released', '2025-10-22 07:32:29', '2025-10-22 01:36:09'),
+(17, 'CBS24001002', 'A5-05-005', '2025/1', 'Active', '2025-10-22 07:36:09', NULL);
 
 -- --------------------------------------------------------
 
@@ -199,9 +204,15 @@ CREATE TABLE `tickets` (
 INSERT INTO `tickets` (`ticket_id`, `student_id`, `category`, `description`, `attachment_path`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-05-005.', NULL, 'Rejected', '2025-10-21 06:54:40', '2025-10-22 04:29:42'),
 (2, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-05-005.', NULL, 'Approved', '2025-10-21 07:01:36', '2025-10-22 04:29:36'),
-(3, 'CBS24001002', 'Broken Furniture', 'Meja belajar rosak, kaki senget', 'uploads/complaints/CBS24001002_1761107247_images.jpeg', 'Under Review', '2025-10-22 04:27:27', '2025-10-22 04:35:20'),
 (4, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A5-05-005 to A5-05-001.', NULL, 'Approved', '2025-10-22 04:33:20', '2025-10-22 04:33:35'),
-(6, 'CBS24001002', 'Broken Furniture', 'Meja rosakk', 'uploads/6_1761109048.gif', 'In Progress', '2025-10-22 04:57:28', '2025-10-22 05:04:00');
+(6, 'CBS24001002', 'Broken Furniture', 'Meja rosakk', 'uploads/6_1761109048.gif', 'Under Review', '2025-10-22 04:57:28', '2025-10-22 06:56:20'),
+(7, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A4-05-005.', NULL, 'Approved', '2025-10-22 06:42:55', '2025-10-22 06:45:04'),
+(9, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-03-003.', NULL, 'Rejected', '2025-10-22 07:05:54', '2025-10-22 07:12:01'),
+(10, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-05-005.', NULL, 'Approved', '2025-10-22 07:11:45', '2025-10-22 07:12:04'),
+(11, 'CBS24001002', 'Broken Furniture', 'Kipas rosak', 'uploads/11_1761117188.png', 'In Progress', '2025-10-22 07:13:08', '2025-10-22 07:14:39'),
+(12, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-05-005.', NULL, 'Approved', '2025-10-22 07:35:42', '2025-10-22 07:36:09'),
+(13, 'CBS24001002', 'Broken Furniture', 'Meja', 'uploads/13_1761118853.png', 'Open', '2025-10-22 07:40:53', '2025-10-22 07:40:53'),
+(14, 'CBS24001002', 'Broken Furniture', 'sdfds', 'uploads/14_1761119118.JPG', 'Open', '2025-10-22 07:45:18', '2025-10-22 07:45:28');
 
 -- --------------------------------------------------------
 
@@ -278,13 +289,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `student_rooms`
 --
 ALTER TABLE `student_rooms`
-  MODIFY `sr_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `sr_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `tickets`
 --
 ALTER TABLE `tickets`
-  MODIFY `ticket_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `ticket_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Constraints for dumped tables
