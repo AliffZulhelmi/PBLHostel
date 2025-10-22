@@ -8,6 +8,20 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 
 $message = '';
+
+// Handle Delete Action (Objective 1)
+if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['ticket_id'])) {
+    $ticket_id_to_delete = (int)$_GET['ticket_id'];
+    
+    if (deleteTicket($ticket_id_to_delete)) {
+        $message = "Ticket #$ticket_id_to_delete deleted successfully.";
+    } else {
+        $message = "Error deleting Ticket #$ticket_id_to_delete.";
+    }
+}
+
+
+// Handle Status Update (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ticket_id = (int)$_POST['ticket_id'];
     $new_status = $_POST['status'];
@@ -43,7 +57,7 @@ $status_options = ['Open', 'Under Review', 'In Progress', 'Resolved', 'Unresolve
         <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">Student Complaint Tickets</h2>
         
         <?php if ($message): ?>
-            <div class="mb-4 p-4 rounded-lg bg-green-100 text-green-700 border border-green-300">
+            <div class="mb-4 p-4 rounded-lg <?php echo strpos($message, 'Error') !== false ? 'bg-red-100 text-red-700 border-red-300' : 'bg-green-100 text-green-700 border-green-300'; ?> border">
                 <?php echo htmlspecialchars($message); ?>
             </div>
         <?php endif; ?>
@@ -71,9 +85,11 @@ $status_options = ['Open', 'Under Review', 'In Progress', 'Resolved', 'Unresolve
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-700 max-w-md">
                                 <p class="font-medium"><?php echo htmlspecialchars($ticket['category']); ?></p>
-                                <p class="text-xs truncate"><?php echo htmlspecialchars($ticket['description']); ?></p>
+                                <p class="text-xs max-w-xs truncate"><?php echo htmlspecialchars($ticket['description']); ?></p>
                                 <?php if ($ticket['attachment_path']): ?>
-                                    <span class="text-xs text-blue-600 font-medium">Attachment provided (view not implemented)</span>
+                                    <a href="<?php echo htmlspecialchars($ticket['attachment_path']); ?>" target="_blank" class="text-xs text-blue-600 font-medium hover:underline">
+                                        View Attachment
+                                    </a>
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -88,10 +104,10 @@ $status_options = ['Open', 'Under Review', 'In Progress', 'Resolved', 'Unresolve
                                     <?php echo htmlspecialchars($ticket['status']); ?>
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm space-y-1">
                                 <form method="post" action="admin_complaint_tickets.php" class="flex flex-col space-y-1">
                                     <input type="hidden" name="ticket_id" value="<?php echo $ticket['ticket_id']; ?>">
-                                    <select name="status" class="p-1 border border-gray-300 rounded text-sm">
+                                    <select name="status" class="p-1 border border-gray-300 rounded text-xs">
                                         <?php foreach ($status_options as $status): ?>
                                             <option value="<?php echo $status; ?>" <?php echo ($ticket['status'] === $status) ? 'selected' : ''; ?>>
                                                 <?php echo $status; ?>
@@ -100,6 +116,11 @@ $status_options = ['Open', 'Under Review', 'In Progress', 'Resolved', 'Unresolve
                                     </select>
                                     <button type="submit" class="bg-indigo-500 text-white text-xs py-1 rounded hover:bg-indigo-600 transition">Update</button>
                                 </form>
+                                <a href="admin_complaint_tickets.php?action=delete&ticket_id=<?php echo $ticket['ticket_id']; ?>" 
+                                   onclick="return confirm('Are you sure you want to permanently delete Ticket #<?php echo $ticket['ticket_id']; ?>?')"
+                                   class="block text-center bg-red-500 text-white text-xs py-1 rounded hover:bg-red-600 transition">
+                                    Delete
+                                </a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

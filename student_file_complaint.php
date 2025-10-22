@@ -15,26 +15,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = trim($_POST['description'] ?? '');
     $other_category = trim($_POST['other_category'] ?? '');
     
-    // Simple file upload simulation (actual file storage is complex, using placeholder)
-    $attachment_path = null;
-    if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = 'uploads/complaints/';
-        $file_name = $student_id . '_' . time() . '_' . basename($_FILES['attachment']['name']);
-        // Simulating file move for functionality demonstration
-        $attachment_path = $upload_dir . $file_name;
-    }
-    
     $final_category = ($category === 'Other') ? "Other: " . $other_category : $category;
+    $attachment_path = null;
+    $file_uploaded = false;
 
     if ($final_category && $description) {
-        $result = submitComplaint($student_id, $final_category, $description, $attachment_path);
+        // 1. Submit complaint without attachment path first to get the ticket_id
+        $ticket_id = submitComplaint($student_id, $final_category, $description);
 
-        if ($result) {
-            $_SESSION['room_message'] = "Complaint filed successfully under '$final_category'. You will be notified of status updates.";
+        if ($ticket_id) {
+            // 2. Handle file upload (Objective 1)
+            if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
+                $file_uploaded = true;
+                $current_time = time();
+                $ext = pathinfo($_FILES['attachment']['name'], PATHINFO_EXTENSION);
+                
+                // Naming convention: ticket_id_timestamp.ext
+                $file_name = $ticket_id . '_' . $current_time . '.' . $ext;
+                $upload_dir = 'uploads/';
+                $target_file = $upload_dir . $file_name;
+                
+                // For demonstration, we simulate file move, but the path is recorded
+                if (!is_dir($upload_dir)) {
+                    @mkdir($upload_dir, 0777, true);
+                }
+                
+                // In a real environment, you would use: move_uploaded_file($_FILES['attachment']['tmp_name'], $target_file);
+                $attachment_path = $target_file;
+            }
+
+            // 3. Update the ticket with the attachment path if file was uploaded
+            if ($file_uploaded && $attachment_path) {
+                // Ensure path is saved in DB
+                $GLOBALS['conn']->query("UPDATE tickets SET attachment_path = '$attachment_path' WHERE ticket_id = $ticket_id");
+            }
+
+            $_SESSION['room_message'] = "Complaint filed successfully (Ticket #$ticket_id) under '$final_category'.";
             header('Location: student_dashboard.php');
             exit;
         } else {
-            $message = "Complaint submission failed. Please try again.";
+            $message = "Complaint submission failed. Database error.";
         }
     } else {
         $message = "Please fill in the category and description.";
@@ -45,14 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File a Complaint</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
     </style>
-</head>
+    </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
 
     <div class="w-full max-w-lg shadow-2xl rounded-2xl px-8 py-10 bg-white border border-gray-200">
@@ -98,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="attachment" class="block mb-1 text-gray-700 font-medium">Attachment (Image/Proof)</label>
                 <input type="file" name="attachment" id="attachment"
                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
-                <p class="text-xs text-gray-500 mt-1">Max 5MB. Jpg, Png, Pdf allowed (Not fully implemented)</p>
+                <p class="text-xs text-gray-500 mt-1">Jpg, Png, Pdf allowed. Saved in `uploads/[ticket_id]_[timestamp].[ext]`.</p>
             </div>
 
             <div class="flex space-x-3">

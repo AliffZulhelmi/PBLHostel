@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 22, 2025 at 06:39 AM
+-- Generation Time: Oct 22, 2025 at 07:07 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -201,7 +201,7 @@ INSERT INTO `tickets` (`ticket_id`, `student_id`, `category`, `description`, `at
 (2, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A4-01-001 to A5-05-005.', NULL, 'Approved', '2025-10-21 07:01:36', '2025-10-22 04:29:36'),
 (3, 'CBS24001002', 'Broken Furniture', 'Meja belajar rosak, kaki senget', 'uploads/complaints/CBS24001002_1761107247_images.jpeg', 'Under Review', '2025-10-22 04:27:27', '2025-10-22 04:35:20'),
 (4, 'CBS24001002', 'Room Change', 'REQUEST: Student CBS24001002 requests room change from A5-05-005 to A5-05-001.', NULL, 'Approved', '2025-10-22 04:33:20', '2025-10-22 04:33:35'),
-(5, 'CBS24001002', 'Noise Complaint', 'Jiran buka lagu bapak kuat kontol', 'uploads/complaints/CBS24001002_1761107681_arul yellow.png', 'Resolved', '2025-10-22 04:34:41', '2025-10-22 04:35:09');
+(6, 'CBS24001002', 'Broken Furniture', 'Meja rosakk', 'uploads/6_1761109048.gif', 'In Progress', '2025-10-22 04:57:28', '2025-10-22 05:04:00');
 
 -- --------------------------------------------------------
 
@@ -284,7 +284,7 @@ ALTER TABLE `student_rooms`
 -- AUTO_INCREMENT for table `tickets`
 --
 ALTER TABLE `tickets`
-  MODIFY `ticket_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `ticket_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables

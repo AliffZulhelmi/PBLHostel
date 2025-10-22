@@ -12,17 +12,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = login($email, $password); 
         
         if ($user) {
-            // FIXED: Only stores the student_id string, as numeric 'id' is removed.
             $_SESSION['full_name'] = $user['full_name'];
             $_SESSION['student_id'] = $user['student_id'];
             $_SESSION['role'] = $user['role'];
             header('Location: index.php');
             exit;
         } else {
-            $error = 'Invalid student ID or password.';
+            $error = 'Invalid email or password.';
         }
     } else {
-        $error = 'Please enter student ID and password.';
+        $error = 'Please enter email and password.';
     }
 }
 ?>
@@ -43,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="w-full max-w-md shadow-2xl rounded-2xl px-8 py-10 bg-white border border-gray-200">
         <div class="mb-7 text-center">
             <img src="https://placehold.co/60x60/374151/FFFFFF?text=GMI" alt="GMI Logo" class="mx-auto mb-2 h-[60px] rounded-lg shadow">
-            <h2 class="text-3xl font-extrabold text-indigo-900 mb-1">Student Login</h2>
+            <h2 class="text-3xl font-extrabold text-indigo-900 mb-1">Hostel Login</h2>
             <p class="text-sm text-gray-500">Sign in to your hostel account</p>
         </div>
         <?php if ($error): ?>
@@ -53,11 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
         <form method="post" action="" class="space-y-5">
             <div>
-                <label for="email" class="block mb-1 text-gray-700 font-medium">Student Email</label>
+                <label for="email" class="block mb-1 text-gray-700 font-medium">Email</label>
                 <input type="text" name="email" id="email"
                        required
                        class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition"
-                       placeholder="student@student.edu.my">
+                       placeholder="your.email@gmi.edu.my">
             </div>
             <div>
                 <label for="password" class="block mb-1 text-gray-700 font-medium">Password</label>
@@ -73,6 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </button>
             </div>
         </form>
+        <p class="mt-4 text-center text-gray-500">
+            Don't have an account?
+            <a href="register.php" class="text-indigo-600 hover:text-indigo-800 font-medium">Register here</a>.
+        </p>
     </div>
 </body>
 </html>
