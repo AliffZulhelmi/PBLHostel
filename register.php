@@ -35,17 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Student Registration</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
     </style>
 </head>
-<body class="bg-gradient-to-r from-indigo-200 via-white to-cyan-100 min-h-screen flex items-center justify-center">
+<body class="min-h-screen flex items-center justify-center">
 
-    <div class="w-full max-w-md shadow-2xl rounded-2xl px-8 py-10 bg-white border border-gray-200">
+    <div class="w-full max-w-md shadow-2xl rounded-2xl px-8 py-10 bg-white border border-gray-200 mt-16 mb-16">
         <div class="mb-7 text-center">
-            <img src="https://placehold.co/60x60/374151/FFFFFF?text=GMI" alt="GMI Logo" class="mx-auto mb-2 h-[60px] rounded-lg shadow">
+            <img src="images/gmi_logo.png" alt="GMI Logo" class="mx-auto mb-2 h-[80px] rounded-lg">
             <h2 class="text-3xl font-extrabold text-indigo-900 mb-1">Student Registration</h2>
             <p class="text-sm text-gray-500">Fill in the form to create your hostel account</p>
         </div>
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="text" name="student_id" id="student_id"
                        required
                        class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition"
-                       placeholder="123456">
+                       placeholder="ABC12345678">
             </div>
 
             <div>

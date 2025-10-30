@@ -38,8 +38,9 @@ if ($student_id) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     
     <style>
         body {
@@ -50,32 +51,9 @@ if ($student_id) {
 </head>
 <body class="bg-gray-100 text-gray-900 m-0 p-0">
 
-    <header class="bg-gray-800 text-white py-3 px-4 flex items-center justify-between shadow-lg">
-        
-        <div class="flex items-center">
-            
-            <div class="mr-4">
-                <img src="https://placehold.co/60x60/374151/FFFFFF?text=GMI" alt="GMI Logo" class="h-[60px] rounded-lg">
-            </div>
-            
-            <div>
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold m-0">
-                    Hostel Dashboard
-                </h1>
-            </div>
-        </div>
+<?php include 'student_header.php'; ?>
 
-        <div class="hidden sm:block text-right p-2 rounded-lg bg-gray-700 ml-4">
-            <p class="text-base sm:text-lg font-semibold text-indigo-400">
-                Hello, <strong><?php echo htmlspecialchars($full_name); ?></strong>
-            </p>
-            <p class="text-sm text-gray-300">
-                ID: <strong><?php echo htmlspecialchars($student_id); ?></strong>
-            </p>
-        </div>
-    </header>
-
-<div class="max-w-[900px] mx-auto my-10 p-5 bg-white rounded-xl shadow-2xl">
+<div class="max-w-[900px] mx-auto my-10 p-6 bg-white rounded-xl shadow-lg border border-gray-100">
 
     <?php 
     // Display all session messages (new and old)
@@ -97,88 +75,112 @@ if ($student_id) {
         <?php unset($_SESSION['admin_message']); ?>
     <?php endif; ?>
 
-
-    <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Current Room Assignment</h2>
+    <section class="mb-10">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">Current Room Assignment</h2>
             
-            <div class="bg-indigo-50 p-4 rounded-lg space-y-2 border border-indigo-200">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-5">
                 <?php if ($has_active_assignment && $room_details) { ?>
-                    <p><strong class="text-indigo-700">Block:</strong> <?php echo htmlspecialchars($room_details['block_id']); ?></p>
-                    <p><strong class="text-indigo-700">Floor:</strong> <?php echo htmlspecialchars($room_details['floor']); ?></p>
-                    <p><strong class="text-indigo-700">Room Number:</strong> <?php echo htmlspecialchars($room_details['room_number']); ?></p>
-                    <p><strong class="text-indigo-700">Total Capacity:</strong> <?php echo htmlspecialchars($room_details['total_capacity']); ?></p>
-                    <p><strong class="text-indigo-700">Semester:</strong> <?php echo htmlspecialchars($room_details['semester']); ?></p>
-                    <p><strong class="text-indigo-700">Assigned At:</strong> <?php echo htmlspecialchars($room_details['assigned_at']); ?></p>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-gray-500 uppercase tracking-wide">Block</label>
+                                <div class="text-lg font-bold text-gray-900"><?php echo htmlspecialchars($room_details['block_id']); ?></div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-gray-500 uppercase tracking-wide">Floor</label>
+                                <div class="text-lg font-bold text-gray-900"><?php echo htmlspecialchars($room_details['floor']); ?></div>
+                            </div>
+                            <div class="space-y-1">
+                            <label class="text-sm font-medium text-gray-500 uppercase tracking-wide">Room Number</label>
+                            <div class="text-lg font-bold text-gray-900"><?php echo htmlspecialchars($room_details['room_number']); ?></div>
+                            </div>
+                        </div>
+
+                        <div class="border-b border-gray-200 my-6"></div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-gray-500 uppercase tracking-wide">Semester</label>
+                                <div class="text-lg font-bold text-gray-900"><?php echo htmlspecialchars($room_details['semester']); ?></div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs font-medium text-gray-400 uppercase tracking-wide">Assigned At</label>
+                                <div class="text-sm text-gray-400"><?php echo htmlspecialchars($room_details['assigned_at']); ?></div>
+                            </div>
+                        </div>
+                     </div>
+
+                    <div class="mt-8 mb-6">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <p class="text-sm text-blue-800">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                If you wish to request a room change, please use the button below to submit your request.
+                            </p>
+                        </div>
+                    </div>
+
                 <?php } else { ?>
                     <p class="text-gray-500 italic">No active room assignment found.</p>
+                    <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-800 text-sm">
+                        If no room is assigned, please use the registration button below.
+                    </div>
                 <?php } ?>
-            </div>
-            
-            <p class="text-sm text-gray-500 mt-3 italic">
-                <?php if ($has_active_assignment && $room_details) { ?>
-                    If you wish to request a room change, use the button below.
-                <?php } else { ?>
-                    If no room is assigned, please use the registration button below.
-                <?php } ?>
-            </p>
-        </section>
+        </div>
+    </section>
+    <section class="mb-10">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Actions</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
 
-        <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Actions</h2>
-            
-            <div class="bg-gray-200 p-4 rounded-lg flex flex-wrap gap-3">
-                
                 <?php if (!$has_active_assignment) { ?>
-                <button onclick="window.location.href='room_register.php'"
-                        class="py-2.5 px-4 text-sm bg-blue-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transform hover:scale-[1.01]">
-                    Register Room
-                </button>
+                    <button onclick="window.location.href='room_register.php'"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 text-sm rounded-md transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-door-open"></i>
+                    <span>Register Room</span>
+                    </button>
                 <?php } else { ?>
-                <button
-                    class="py-2.5 px-4 text-sm bg-gray-400 text-white font-medium rounded-lg cursor-not-allowed opacity-60"
-                    disabled>
-                    Register Room
-                </button>
+                    <button class="bg-gray-300 text-gray-600 font-medium py-2 px-3 text-sm rounded-md cursor-not-allowed flex items-center justify-center space-x-2" disabled>
+                    <i class="fas fa-door-open"></i>
+                    <span>Register Room</span>
+                    </button>
                 <?php } ?>
 
                 <?php if ($has_active_assignment) { ?>
-                <button onclick="window.location.href='room_change.php?user_id=<?php echo urlencode($student_id); ?>'"
-                        class="py-2.5 px-4 text-sm bg-blue-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transform hover:scale-[1.01]">
-                    Request Room Change
-                </button>
-                
-                <button onclick="if(confirm('Are you sure you want to checkout from <?php echo htmlspecialchars($room_details['room_identifier']); ?>?')) { window.location.href='room_checkout.php?room_identifier=<?php echo urlencode($room_details['room_identifier']); ?>'; }"
-                        class="py-2.5 px-4 text-sm bg-yellow-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-300 transform hover:scale-[1.01]">
-                    Checkout Room
-                </button>
+                    <button onclick="window.location.href='room_change.php?user_id=<?php echo urlencode($student_id); ?>'"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 text-sm rounded-md border border-gray-300 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Request Room Change</span>
+                    </button>
+
+                    <button onclick="if(confirm('Are you sure you want to checkout from <?php echo htmlspecialchars($room_details['room_identifier']); ?>?')) { window.location.href='room_checkout.php?room_identifier=<?php echo urlencode($room_details['room_identifier']); ?>'; }"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 text-sm rounded-md border border-gray-300 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Checkout Room</span>
+                    </button>
 
                 <?php } else { ?>
-                <button
-                    class="py-2.5 px-4 text-sm bg-gray-400 text-white font-medium rounded-lg cursor-not-allowed opacity-60"
-                    disabled>
-                    Request Room Change
-                </button>
+                    <button class="bg-gray-300 text-gray-600 font-medium py-2 px-3 text-sm rounded-md cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2" disabled>
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Request Room Change</span>
+                    </button>
 
-                <button
-                    class="py-2.5 px-4 text-sm bg-gray-400 text-white font-medium rounded-lg cursor-not-allowed opacity-60"
-                    disabled>
-                    Checkout Room
-                </button>
+                    <button class="bg-gray-300 text-gray-600 font-medium py-2 px-3 text-sm rounded-md cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2" disabled>
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Checkout Room</span>
+                    </button>
                 <?php } ?>
 
-                <button onclick="window.location.href='student_file_complaint.php'"
-                        class="py-2.5 px-4 text-sm bg-purple-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 transform hover:scale-[1.01]">
-                    File a Complaint
-                </button>
-                
-                <button onclick="window.location.href='student_complaint_list.php'"
-                        class="py-2.5 px-4 text-sm bg-purple-600 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 transform hover:scale-[1.01]">
-                    View My Complaints
-                </button>
-                <button onclick="window.location.href='logout.php'"
-                        class="py-2.5 px-4 text-sm bg-red-500 text-white font-medium rounded-lg cursor-pointer transition duration-300 hover:bg-red-600 focus:ring-4 focus:ring-red-300 transform hover:scale-[1.01]">
-                    Logout
-                </button>
+                    <button onclick="window.location.href='student_file_complaint.php'"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 text-sm rounded-md border border-gray-300 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>File a Complaint</span>
+                    </button>
+
+                    <button onclick="window.location.href='student_complaint_list.php'"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 text-sm rounded-md border border-gray-300 transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-eye"></i>
+                    <span>View My Complaints</span>
+                    </button>
+
             </div>
         </section>
     </div>

@@ -45,6 +45,7 @@ $status_options = ['Open', 'Under Review', 'In Progress', 'Resolved', 'Unresolve
     <title>Complaint Tickets - Admin</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
     </style>

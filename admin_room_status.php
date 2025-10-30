@@ -61,26 +61,40 @@ $capacity_summary = getRoomCapacitySummary();
     <title>Room Status - Admin</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
     <style>
-        body { font-family: 'Inter', system-ui, sans-serif; }
+        body { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
         /* Objective 2: Expandable UI classes */
         .collapse-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
         .collapse-content.open { max-height: 2000px; /* Arbitrarily large enough height */ }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-900 m-0 p-0">
+<body class="bg-gray-50 text-gray-900 m-0 p-0">
 
     <?php include 'admin_nav.php'; ?>
 
-    <div class="max-w-7xl mx-auto my-10 p-5 bg-white rounded-xl shadow-2xl">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">All Room Status & Availability (Live)</h2>
-        <p class="text-sm text-gray-600 mb-4">Click on a block to expand the full room list. Use the Action column to manage room status or delete records.</p>
+    <div class="max-w-7xl mx-auto my-10 p-5">
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+    <div class="px-8 py-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-62">Room Status & Availability</h2>
         
         <?php if ($message): ?>
-            <div class="mb-4 p-4 rounded-lg <?php echo strpos($message, 'Error') !== false ? 'bg-red-100 text-red-700 border-red-300' : 'bg-green-100 text-green-700 border-green-300'; ?> border">
+            <div class="mb-6 p-4 rounded-lg <?php echo strpos($message, 'Error') !== false ? 'bg-red-50 text-red-800 border-red-200' : 'bg-green-50 text-green-800 border-green-200'; ?> border">
                 <?php echo htmlspecialchars($message); ?>
             </div>
         <?php endif; ?>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 mt-6">
+            <h3 class="text-lg font-semibold text-blue-800 flex items-center space-x-2">
+                <i class="fa-solid fa-building"></i>
+                <span>Room List Overview</span>
+            </h3>
+            <p class="text-sm text-blue-700 mt-1">
+                Click on a block to expand the full room list. Use the Action column to manage room status or delete records.
+            </p>
+        </div>
 
         <div class="space-y-4">
             <?php foreach ($rooms_grouped as $block_id => $rooms): 
@@ -90,7 +104,8 @@ $capacity_summary = getRoomCapacitySummary();
                 $is_full = ($summary['available'] ?? 0) == 0;
             ?>
                 <div class="border border-gray-200 rounded-lg bg-gray-50">
-                    <button class="w-full text-left p-4 flex justify-between items-center bg-white hover:bg-gray-100 transition rounded-lg shadow-sm" onclick="toggleCollapse('block-<?php echo $block_id; ?>')">
+                    <button class="w-full text-left p-4 flex justify-between items-center bg-white hover:bg-gray-100 transition rounded-lg shadow-sm" 
+                            onclick="toggleCollapse('block-<?php echo $block_id; ?>')">
                         <h3 class="text-xl font-semibold text-gray-800">
                             Block <?php echo htmlspecialchars($block_id); ?>
                         </h3>
@@ -108,9 +123,16 @@ $capacity_summary = getRoomCapacitySummary();
                     </button>
 
                     <div id="block-<?php echo $block_id; ?>" class="collapse-content">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 mt-2">
-                                <thead class="bg-gray-100">
+                        <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                            <table class="min-w-full divide-y divide-gray-200 table-fixed">
+                            <colgroup>
+                                <col style="width:20%">
+                                <col style="width:10%">
+                                <col style="width:25%">
+                                <col style="width:15%">
+                                <col style="width:30%">
+                            </colgroup>
+                                <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room ID</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Floor</th>
@@ -121,9 +143,13 @@ $capacity_summary = getRoomCapacitySummary();
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <?php foreach ($rooms as $room): ?>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?php echo htmlspecialchars($room['room_identifier']); ?></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($room['floor_no']); ?></td>
+                                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <?php echo htmlspecialchars($room['room_identifier']); ?>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                <?php echo htmlspecialchars($room['floor_no']); ?>
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                 <?php echo htmlspecialchars($room['available_capacity']); ?> / <?php echo htmlspecialchars($room['total_capacity']); ?>
                                             </td>
@@ -141,8 +167,9 @@ $capacity_summary = getRoomCapacitySummary();
                                                     <?php echo htmlspecialchars($room['status']); ?>
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm space-y-1">
-                                                <select onchange="updateRoomStatus(this, '<?php echo $room['room_identifier']; ?>')" class="p-1 border border-gray-300 rounded text-xs bg-white">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <div class="flex items-center space-x-6">
+                                                <select onchange="updateRoomStatus(this, '<?php echo $room['room_identifier']; ?>')" class="p-1 border border-gray-300 rounded text-xs bg-white w-28">
                                                     <option value="">-- Change Status --</option>
                                                     <?php foreach ($status_options as $status): ?>
                                                         <option value="<?php echo $status; ?>" <?php echo ($room['status'] === $status) ? 'selected' : ''; ?>>
@@ -151,9 +178,10 @@ $capacity_summary = getRoomCapacitySummary();
                                                     <?php endforeach; ?>
                                                 </select>
                                                 <button onclick="deleteRoom('<?php echo $room['room_identifier']; ?>')" 
-                                                        class="w-full text-xs py-1 rounded bg-red-600 text-white hover:bg-red-700 transition">
+                                                        class="px-3 py-1 rounded-md text-xs font-medium bg-red-600 text-white hover:bg-red-700 transition-colors duration-200">
                                                     Delete Room
                                                 </button>
+                                            </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -164,6 +192,8 @@ $capacity_summary = getRoomCapacitySummary();
                 </div>
             <?php endforeach; ?>
         </div>
+    </div>
+    </div>
     </div>
     
     <script>

@@ -18,6 +18,7 @@ $complaints = getStudentComplaints($student_id);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Complaints</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
     </style>

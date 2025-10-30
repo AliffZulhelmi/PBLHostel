@@ -58,27 +58,29 @@ $register_records = getRoomRegisterRecords($sort_by);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assignment Records - Admin</title>
-    <!-- Tailwind CSS, font style -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <style>
-        body { font-family: 'Inter', system-ui, sans-serif; }
+        body { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box;}
     </style>
 </head>
-<body class="bg-gray-100 text-gray-900 m-0 p-0">
+<body class="bg-gray-50 text-gray-900 m-0 p-0">
 
     <?php include 'admin_nav.php'; // Navigation bar for admin ?>
 
-    <div class="max-w-7xl mx-auto my-10 p-5 bg-white rounded-xl shadow-2xl">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">Room Assignment Records</h2>
+    <div class="max-w-7xl mx-auto my-10 p-5">
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+    <div class="px-8 py-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Room Assignment Records</h2>
         
-        <!-- Display feedback messages (success or error) -->
         <?php if ($message): ?>
-            <div class="mb-4 p-4 rounded-lg <?php echo strpos($message, 'Error') !== false ? 'bg-red-100 text-red-700 border-red-300' : 'bg-green-100 text-green-700 border-green-300'; ?> border">
-                <?php echo htmlspecialchars($message); ?>
+            <div class="mb-6 p-4 rounded-lg <?php echo strpos($message, 'Error') !== false ? 'bg-red-50 text-red-800 border-red-200' : 'bg-green-50 text-green-800 border-green-200'; ?> border flex items-center space-x-2">
+            <i class="<?php echo strpos($message, 'Error') !== false ? 'fas fa-exclamation-circle' : 'fas fa-check-circle'; ?>"></i>
+            <span><?php echo htmlspecialchars($message); ?></span>
             </div>
         <?php endif; ?>
 
-        <!-- Sorting selector for admin viewing ease -->
         <div class="mb-4 flex justify-end items-center space-x-2">
             <label for="sort-select" class="text-sm font-medium text-gray-700">Sort By:</label>
             <select id="sort-select" onchange="window.location.href='admin_assignment_records.php?sort=' + this.value" class="p-1 border border-gray-300 rounded text-sm">
@@ -89,13 +91,12 @@ $register_records = getRoomRegisterRecords($sort_by);
             </select>
         </div>
 
-        <!-- Assignment Records Table -->
-        <div class="overflow-x-auto bg-white rounded-lg shadow">
+        <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-sm">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Record ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student ID / Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room ID</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned At</th>
@@ -104,16 +105,22 @@ $register_records = getRoomRegisterRecords($sort_by);
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php foreach ($register_records as $record): ?>
-                        <tr>
-                            <!-- Record (assignment) ID -->
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?php echo htmlspecialchars($record['sr_id']); ?></td>
-                            <!-- Student ID and name -->
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                <?php echo htmlspecialchars($record['student_id']); ?> (<?php echo htmlspecialchars($record['full_name']); ?>)
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                <?php echo htmlspecialchars($record['sr_id']); ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="space-y-1">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        <?php echo htmlspecialchars($record['full_name']); ?> 
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        <?php echo htmlspecialchars($record['student_id']); ?>
+                                    </div>
+                                </div>
                             </td>
-                            <!-- Room Identifier -->
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($record['room_identifier']); ?></td>
-                            <!-- Status indicator (Active / Released / etc.) -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <?php echo htmlspecialchars($record['room_identifier']); ?>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     <?php 
@@ -125,18 +132,22 @@ $register_records = getRoomRegisterRecords($sort_by);
                                     <?php echo htmlspecialchars($record['assignment_status']); ?>
                                 </span>
                             </td>
-                            <!-- Assignment date -->
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo htmlspecialchars($record['assigned_at']); ?></td>
-                            <!-- Admin actions: Release or Reactivate assignment -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <?php echo htmlspecialchars($record['assigned_at']); ?></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-3">
                                 <?php if ($record['assignment_status'] === 'Active'): ?>
                                     <a href="admin_assignment_records.php?action=release&sr_id=<?php echo $record['sr_id']; ?>"
                                        onclick="return confirm('Confirm RELEASE Student <?php echo $record['student_id']; ?> from Room <?php echo $record['room_identifier']; ?>?')"
-                                       class="text-red-600 hover:text-red-900 font-medium">Release</a>
+                                       class="bg-white hover:bg-gray-50 text-red-600 border border-red-300 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200">
+                                       Release
+                                    </a>
                                 <?php else: ?>
                                     <a href="admin_assignment_records.php?action=activate&sr_id=<?php echo $record['sr_id']; ?>"
                                        onclick="return confirm('Confirm ACTIVATE this assignment for Student <?php echo $record['student_id']; ?>? NOTE: This does NOT check room availability.')"
-                                       class="text-green-600 hover:text-green-900 font-medium">Activate</a>
+                                       class="bg-white hover:bg-gray-50 text-green-600 border border-green-600 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200">
+                                       Activate
+                                    </a>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -144,6 +155,8 @@ $register_records = getRoomRegisterRecords($sort_by);
                 </tbody>
             </table>
         </div>
+    </div>
+    </div>
     </div>
 </body>
 </html>

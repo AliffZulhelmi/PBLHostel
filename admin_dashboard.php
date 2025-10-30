@@ -38,7 +38,9 @@ $chart_data_json = json_encode([
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
     </style>
@@ -47,32 +49,75 @@ $chart_data_json = json_encode([
 
     <?php include 'admin_nav.php'; // Includes navigation bar ?>
 
-    <div class="max-w-7xl mx-auto my-10 p-5 bg-white rounded-xl shadow-2xl">
+    <div class="max-w-6xl mx-auto my-10 px-8 py-6 bg-white rounded-xl shadow-lg border border-gray-100">
 
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">Hostel Capacity Overview</h2>
+        <h2 class="text-xl font-bold text-gray-900 mb-6">Hostel Capacity Overview</h2>
         
-        <section class="mb-10 p-6 bg-blue-50 rounded-lg border border-blue-200">
-            <h3 class="text-2xl font-semibold text-blue-800 mb-4">Capacity Analysis by Block</h3>
-            <div class="bg-white p-4 rounded-lg shadow">
-                <canvas id="capacityChart"></canvas>
-            </div>
-        </section>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+            <h3 class="text-lg font-semibold text-blue-800 flex items-center space-x-2">
+                <i class="fas fa-chart-bar"></i>
+                <span>Capacity Analysis by Block</span>
+            </h3>
+            <p class="text-sm text-blue-700 mt-1">
+                Real-time overview of hostel occupancy across all blocks
+            </p>
+        </div>
 
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <a href="admin_change_requests.php" class="bg-indigo-500 text-white p-6 rounded-lg shadow-lg hover:bg-indigo-600 transition">
-                <h3 class="text-xl font-bold">Manage Room Changes</h3>
-                <p class="mt-2">Review pending room requests.</p>
+        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <canvas id="capacityChart"></canvas>
+        </div>
+
+        <div class="border-b border-gray-200 my-8"></div>
+
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Administrative Actions</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <a href="admin_change_requests.php" class="group">
+                <div class="rounded-lg shadow-lg transition-all duration-200 p-6 h-full flex flex-col text-white bg-blue-600/85 hover:bg-blue-600">
+                <div class="flex items-center space-x-3 mb-3">
+                    <i class="fas fa-exchange-alt text-xl"></i>
+                    <h4 class="text-xl font-bold">Manage Room Changes</h4>
+                </div>
+                <p class="text-blue-100/90 flex-grow">Review pending room requests.</p>
+                <div class="mt-4 flex items-center text-blue-200 group-hover:text-white transition-colors">
+                    <span class="text-sm font-medium">View Requests</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </div>
+                </div>
             </a>
-            <a href="admin_complaint_tickets.php" class="bg-purple-500 text-white p-6 rounded-lg shadow-lg hover:bg-purple-600 transition">
-                <h3 class="text-xl font-bold">Handle Complaints</h3>
-                <p class="mt-2">View and update filed complaints.</p>
+
+            <a href="admin_complaint_tickets.php" class="group">
+                <div class="rounded-lg shadow-lg transition-all duration-200 p-6 h-full flex flex-col text-white bg-purple-600/85 hover:bg-purple-600">
+                <div class="flex items-center space-x-3 mb-3">
+                    <i class="fas fa-exclamation-triangle text-xl"></i>
+                    <h4 class="text-xl font-bold">Handle Complaints</h4>
+                </div>
+                <p class="text-purple-100/90 flex-grow">View and update filed complaints.</p>
+                <div class="mt-4 flex items-center text-purple-200 group-hover:text-white transition-colors">
+                    <span class="text-sm font-medium">Manage Tickets</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </div>
+                </div>
             </a>
-            <a href="admin_room_status.php" class="bg-green-500 text-white p-6 rounded-lg shadow-lg hover:bg-green-600 transition">
-                <h3 class="text-xl font-bold">View Live Room Status</h3>
-                <p class="mt-2">Check availability and room lists.</p>
+
+            <a href="admin_room_status.php" class="group">
+                <div class="rounded-lg shadow-lg transition-all duration-200 p-6 h-full flex flex-col text-white bg-green-600/85 hover:bg-green-600">
+                <div class="flex items-center space-x-3 mb-3">
+                    <i class="fas fa-eye text-xl"></i>
+                    <h4 class="text-xl font-bold">View Live Room Status</h4>
+                </div>
+                <p class="text-green-100/90 flex-grow">Check availability and room lists.</p>
+                <div class="mt-4 flex items-center text-green-200 group-hover:text-white transition-colors">
+                    <span class="text-sm font-medium">Check Status</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </div>
+                </div>
             </a>
-        </section>
-    </div>
+            </div>
+        </div>
+        </div>
 
     <script>
         const chartData = <?php echo $chart_data_json; ?>;
@@ -83,17 +128,17 @@ $chart_data_json = json_encode([
                 labels: chartData.labels,
                 datasets: [
                     {
-                        label: 'Total Capacity',
-                        data: chartData.total,
-                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                        borderColor: 'rgba(30, 64, 175, 1)',
-                        borderWidth: 1
-                    },
-                    {
                         label: 'Occupied Spaces',
                         data: chartData.occupied,
                         backgroundColor: 'rgba(239, 68, 68, 0.7)',
                         borderColor: 'rgba(185, 28, 28, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Total Capacity',
+                        data: chartData.total.map((t, i) => t - chartData.occupied[i]),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgba(30, 64, 175, 1)',
                         borderWidth: 1
                     }
                 ]

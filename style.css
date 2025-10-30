@@ -1,0 +1,10 @@
+/* Global background for all pages */
+body {
+    background: 
+      linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)),
+      url('images/gmi_bg.jpg') center center / cover no-repeat fixed;
+    font-family: 'Inter', sans-serif;
+    color: #1f2937;
+    min-height: 100vh;
+    margin: 0;
+  }

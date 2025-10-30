@@ -8,6 +8,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student' || !isset($_SES
 }
 
 $student_id = $_SESSION['student_id'];
+$full_name = $_SESSION['full_name'] ?? 'Student';
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -66,16 +67,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File a Complaint</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
     </style>
-    </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+</head>
+    
+<body class="bg-gray-100 text-gray-900 m-0 p-0">
 
-    <div class="w-full max-w-lg shadow-2xl rounded-2xl px-8 py-10 bg-white border border-gray-200">
-        <h2 class="text-3xl font-extrabold text-purple-800 mb-6 border-b pb-2">File a Complaint / Issue</h2>
-        
+<?php include 'student_header.php'; ?>
+
+    <div class="max-w-[900px] mx-auto my-10 p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+
+    <h2 class="text-xl font-bold text-purple-800 mb-6">
+        File a Complaint / Issue
+    </h2>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-5">
         <?php if ($message): ?>
             <div class="mb-4 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded">
                 <?php echo htmlspecialchars($message); ?>
@@ -87,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
                 <label for="category" class="block mb-1 text-gray-700 font-medium">Category</label>
                 <select name="category" id="category" required
-                        class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition">
+                        class="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition">
                     <option value="" selected disabled>Select Category</option>
                     <option value="Broken Furniture">Broken Furniture</option>
                     <option value="Plumbing Leak">Plumbing/Leak</option>
@@ -101,14 +114,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div id="other-category-field" class="hidden">
                 <label for="other_category" class="block mb-1 text-gray-700 font-medium">Specify Category</label>
                 <input type="text" name="other_category" id="other_category"
-                       class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition"
+                       class="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition"
                        placeholder="e.g., WiFi Issue, Blocked Drainage">
             </div>
 
             <div>
                 <label for="description" class="block mb-1 text-gray-700 font-medium">Detailed Description</label>
                 <textarea name="description" id="description" rows="4" required
-                          class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition"
+                          class="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500 transition"
                           placeholder="Please describe the issue clearly."></textarea>
             </div>
 
@@ -121,10 +134,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="flex space-x-3">
                 <button type="submit"
-                        class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow transition focus:ring-4 focus:ring-purple-300">
+                        class="w-full py-2 px-3 text-sm bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors duration-200 focus:ring-2 focus:ring-purple-300">
                     Submit Complaint
                 </button>
-                <a href="student_dashboard.php" class="w-full py-2.5 text-center bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg shadow transition focus:ring-4 focus:ring-gray-300">
+                <a href="student_dashboard.php" 
+                        class="w-full py-2 px-3 text-sm text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 text-center font-medium rounded-md transition-colors duration-200 focus:ring-2 focus:ring-gray-300">
                     Cancel
                 </a>
             </div>
@@ -141,5 +155,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
     </script>
+</div>
 </body>
 </html>
