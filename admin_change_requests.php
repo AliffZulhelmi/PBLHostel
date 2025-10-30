@@ -24,6 +24,7 @@ $change_requests = getRoomChangeRequests();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Room Change Requests - Admin</title>
     
+    <!-- TailwindCSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -57,7 +58,8 @@ $change_requests = getRoomChangeRequests();
             <?php unset($_SESSION['admin_message']); ?>
         <?php endif; ?>
 
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <!-- Request overview callout -->
+         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <h3 class="text-lg font-semibold text-blue-800 flex items-center space-x-2">
                 <i class="fa-solid fa-right-left"></i>
                 <span>Pending Room Change Request</span>
@@ -65,10 +67,16 @@ $change_requests = getRoomChangeRequests();
             <p class="text-sm text-blue-700 mt-1">Review and process student room change requests below.</p>
          </div>
 
+        <!--
+            Room Change Requests Table
+            - Shows: Ticket ID, Student Info, Requested Change (Old/New Room), Request Status, and Action
+            - Actions: Approve / Reject (only if status is Pending)
+        -->
         <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-sm">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
+                        <!-- Table Headers for clarity -->
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket ID</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested Change</th>
@@ -78,6 +86,7 @@ $change_requests = getRoomChangeRequests();
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php if (empty($change_requests)): ?>
+                        <!-- Empty state: No change requests -->
                         <tr>
                             <td colspan="5" class="px-6 py-8 text-center">
                                 <div class="flex flex-col items-center space-y-2">
@@ -89,11 +98,13 @@ $change_requests = getRoomChangeRequests();
                     <?php endif; ?>
                     <?php foreach ($change_requests as $request): ?>
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <!-- Ticket ID -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-bold text-gray-900">
                                 <?php echo htmlspecialchars($request['ticket_id']); ?>
                                 </div>
                             </td>
+                            <!-- Student Name (ID) -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="space-y-1">
                                     <?php echo htmlspecialchars($request['full_name']); ?>
@@ -102,6 +113,7 @@ $change_requests = getRoomChangeRequests();
                                     <?php echo htmlspecialchars($request['student_id']); ?>
                                 </div>
                             </td>
+                            <!-- Requested Change info: FROM old room TO new room -->
                             <td class="px-6 py-4">
                                 <div class="space-y-1">
                                 <div class="text-sm text-gray-700">
@@ -114,6 +126,7 @@ $change_requests = getRoomChangeRequests();
                                 </div>
                                 </div>
                             </td>
+                            <!-- Request Status, color-tagged -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
                                     <?php 
@@ -124,14 +137,17 @@ $change_requests = getRoomChangeRequests();
                                     <?php echo htmlspecialchars($request['status']); ?>
                                 </span>
                             </td>
+                            <!-- ADMIN ACTION BUTTONS: Approve/Reject if Pending, else Completed -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <?php if ($request['status'] === 'Pending'): ?>
                                 <div class="flex space-x-3">
+                                    <!-- Approve request button -->
                                     <a href="admin_process_request.php?action=approve&ticket_id=<?php echo $request['ticket_id']; ?>" 
                                        onclick="return confirm('APPROVE room change for <?php echo htmlspecialchars($request['student_id']); ?> to <?php echo htmlspecialchars($request['new_room_id']); ?>?')"
                                        class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
                                        <i class="fas fa-check"></i><span>Approve</span>
                                     </a>
+                                    <!-- Reject request button -->
                                     <a href="admin_process_request.php?action=reject&ticket_id=<?php echo $request['ticket_id']; ?>" 
                                        onclick="return confirm('REJECT room change for <?php echo htmlspecialchars($request['student_id']); ?>?'"
                                        class="bg-white hover:bg-gray-50 text-red-600 border border-red-300 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
