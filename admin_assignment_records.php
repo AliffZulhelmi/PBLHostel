@@ -58,8 +58,8 @@ $register_records = getRoomRegisterRecords($sort_by);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assignment Records - Admin</title>
+    <!-- Tailwind CSS, font style -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box;}
@@ -74,6 +74,7 @@ $register_records = getRoomRegisterRecords($sort_by);
     <div class="px-8 py-6">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Room Assignment Records</h2>
         
+        <!-- Display feedback messages (success or error) -->
         <?php if ($message): ?>
             <div class="mb-6 p-4 rounded-lg <?php echo strpos($message, 'Error') !== false ? 'bg-red-50 text-red-800 border-red-200' : 'bg-green-50 text-green-800 border-green-200'; ?> border flex items-center space-x-2">
             <i class="<?php echo strpos($message, 'Error') !== false ? 'fas fa-exclamation-circle' : 'fas fa-check-circle'; ?>"></i>
@@ -81,6 +82,7 @@ $register_records = getRoomRegisterRecords($sort_by);
             </div>
         <?php endif; ?>
 
+        <!-- Sorting selector for admin viewing ease -->
         <div class="mb-4 flex justify-end items-center space-x-2">
             <label for="sort-select" class="text-sm font-medium text-gray-700">Sort By:</label>
             <select id="sort-select" onchange="window.location.href='admin_assignment_records.php?sort=' + this.value" class="p-1 border border-gray-300 rounded text-sm">
@@ -91,6 +93,7 @@ $register_records = getRoomRegisterRecords($sort_by);
             </select>
         </div>
 
+        <!-- Assignment Records Table -->
         <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-sm">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -106,8 +109,10 @@ $register_records = getRoomRegisterRecords($sort_by);
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php foreach ($register_records as $record): ?>
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <!-- Record (assignment) ID -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                 <?php echo htmlspecialchars($record['sr_id']); ?></td>
+                            <!-- Student ID and name -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="space-y-1">
                                     <div class="text-sm font-medium text-gray-900">
@@ -118,9 +123,11 @@ $register_records = getRoomRegisterRecords($sort_by);
                                     </div>
                                 </div>
                             </td>
+                            <!-- Room Identifier -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <?php echo htmlspecialchars($record['room_identifier']); ?>
                             </td>
+                            <!-- Status indicator (Active / Released / etc.) -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     <?php 
@@ -132,8 +139,10 @@ $register_records = getRoomRegisterRecords($sort_by);
                                     <?php echo htmlspecialchars($record['assignment_status']); ?>
                                 </span>
                             </td>
+                            <!-- Assignment date -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 <?php echo htmlspecialchars($record['assigned_at']); ?></td>
+                            <!-- Admin actions: Release or Reactivate assignment -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-3">
                                 <?php if ($record['assignment_status'] === 'Active'): ?>
