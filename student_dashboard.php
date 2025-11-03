@@ -53,7 +53,7 @@ if ($student_id) {
 
 <?php include 'student_header.php'; ?>
 
-<div class="max-w-[900px] mx-auto my-10 p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+<div class="max-w-[900px] mx-auto my-10 p-6 bg-white rounded-xl shadow-lg border border-gray-1000">
 
     <?php 
     // Display all session messages (new and old)
